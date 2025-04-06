@@ -54,24 +54,25 @@ export function useBackendActions(): useBackendActionsReturn {
 	const login = useCallback(async (payload: string, trackingArea: string) => {
 		try {
 			const response = await trackPromise(apiClient.post(`/login`, payload), trackingArea);
-			if (response.status === 404) {
-				console.log('User not found', response);
-				throw { type: 'USER_NOT_FOUND', message: 'User not found. Please check your credentials.' };
+			if (response.status === 200) {
+				return response.data as LoginResponse;
+			} else {
+				throw { type: 'Login Failed', message: 'Login failed. Please contact administration for support.' } as LoginError;
+			}
+		} catch (error: any) {
+			if (error.status === 404) {
+				throw { type: 'USER_NOT_FOUND', message: 'User not found. Please check your credentials.' } as LoginError;
 			}
 
-			if (response.status === 401) {
-				console.log('Invalid credentials', response);
-				throw { type: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please try again.' };
+			if (error.status === 401) {
+				throw { type: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please try again.' } as LoginError;
 			}
 
-			if (response.status !== 200) {
-				throw new Error('Login failed');
+			if (error.status !== 200) {
+				throw { type: 'Login Failed', message: 'Login failed. Please contact adminstration for support.' } as LoginError;
 			}
-			console.log('Login successful', response);
-			return response.data as LoginResponse;
-		} catch (error) {
-			handleApiError(error);
-			throw { type: 'NETWORK_ERROR', message: 'Network error. Please try again later.' };
+
+			throw { type: 'NETWORK_ERROR', message: 'Network error. Please try again later.' } as LoginError;
 		}
 	}, []);
 
@@ -81,13 +82,29 @@ export function useBackendActions(): useBackendActionsReturn {
 	const register = useCallback(async (payload: string, trackingArea: string) => {
 		try {
 			const response = await trackPromise(apiClient.post(`/register`, payload), trackingArea);
-			if (response.status !== 200) {
-				console.log('Registration failed', response.status);
+			if (response.status !== 201) {
 				throw new Error('Registration failed');
 			}
 			return response.data;
-		} catch (error) {
-			handleApiError(error);
+		} catch (error: any) {
+
+			if (error.status === 409) {
+				throw { type: 'EMAIL_ALREADY_REGISTERED', message: 'Email address already exists. Please try logging in.' };
+			}
+
+			if (error.status === 400) {
+				if (error.response.data.code === 'INVALID_EMAIL') {
+					throw { type: error.response.data.code, message: 'Invalid email address. Please enter a valid email.' }
+				}
+				
+				if (error.response.data.code === 'INVALID_ROLE') {
+					throw { type: error.response.data.code, message: 'Invalid password. Password must be at least 8 characters long.' }
+				}
+
+				throw { type: 'BAD_REQUEST', message: 'Bad request. Only pilots can register through here. Please contact administration for other roles.' };
+			}
+
+			throw { type: 'NETWORK_ERROR', message: 'Network error. Please try again later.' } 
 		}
 		
 	}, []);

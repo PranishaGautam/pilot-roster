@@ -1,24 +1,27 @@
 import { useMemo, useState } from 'react';
-import { trackPromise } from 'react-promise-tracker';
 import { useNavigate } from 'react-router-dom';
 
-import { Link, Button } from '@mui/material';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import { Link, Button, Alert, TextField, InputAdornment } from '@mui/material';
+import PasswordOutlinedIcon from '@mui/icons-material/PasswordOutlined';
+import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
 import Spinner from '../components/Spinner';
 
+import planeImage from '../../assets/plane1.jpg';
 import loginstyles from '../../styles/login.module.css';
 
 import { useAuth } from '../context/AuthContext';
 import { useBackendActions } from '../hooks/callBackend';
 import isLoading from '../hooks/isLoading';
+import { useToast } from '../hooks/useToast';
 
-import { REGISTER_PAGE_LINK } from '../utils/constants';
-import { LoginError, LoginResponse } from '../models/response.interface';
+import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
+import { LoginResponse } from '../models/response.interface';
 
 const LoginPage = () => {
 
 	const navigate = useNavigate();
 	const { login } = useBackendActions();
+	const { successToast, errorToast } = useToast();
 
 	// Access the authentication context
 	const { setToken, setRole } = useAuth();
@@ -26,7 +29,9 @@ const LoginPage = () => {
 	// State variables for email and password
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const [error, setError] = useState('');
+
+	const [errorType, setErrorType] = useState('');
+	const [errorMessage, setErrorMessage] = useState('');
 
 	// Memo to handle login button enable/disable
 	const enableLoginButton: boolean = useMemo(() => {
@@ -36,6 +41,18 @@ const LoginPage = () => {
 
 	// Handler to handle login functionality
 	const handleLogin = async () => {
+
+		// Validating email format
+		if (!emailRegex.test(email)) {
+			setErrorType('INVALID_EMAIL_TYPE');
+			setErrorMessage('Invalid email format. Please enter a valid email address.');
+			errorToast('Invalid email format. Please enter a valid email address.');
+			return;
+		}
+
+		setErrorType(''); // Reset error type
+		setErrorMessage(''); // Reset error message
+
 		try {
 			const payload = JSON.stringify({email, password});
 			const loginResponse = await login(payload, 'login-area');
@@ -46,9 +63,13 @@ const LoginPage = () => {
 				setRole(loginResponseData.role); // Set the role in the context
 				
 				if (loginResponseData.role === 'admin') {
+					successToast('Login successful!');
+					await new Promise(resolve => setTimeout(resolve, 2000));
 					navigate('/dashboard'); // Redirect to admin dashboard
 				}
 				else if (loginResponseData.role === 'pilot') {
+					successToast('Login successful! Welcome aboard!');
+					await new Promise(resolve => setTimeout(resolve, 2000));
 					navigate('/pilot'); // Redirect to user dashboard
 				}
 			}
@@ -57,14 +78,18 @@ const LoginPage = () => {
 			console.log('Login error:', error);
 			// Handle error (e.g., show error message)
 			if (error.type === 'USER_NOT_FOUND') {
-				setError(error.message);
+				setErrorType(error.type);
+				setErrorMessage(error.message);
 			} else if (error.type === 'INVALID_CREDENTIALS') {
-				setError(error.message);
+				setErrorType(error.type);
+				setErrorMessage(error.message);
 			} else if (error.type === 'NETWORK_ERROR') {
-				setError(error.message);
+				setErrorType(error.type);
+				setErrorMessage(error.message);
 			} else {
-				setError('An unexpected error occurred. Please refresh and try again.');
+				setErrorMessage('An unexpected error occurred. Please refresh and try again.');
 			}
+			errorToast(error.message);
 		}
 	}
 
@@ -95,29 +120,59 @@ const LoginPage = () => {
 				<h2 className={loginstyles.loginHeading}>Login</h2>
 
 				<div className={loginstyles.inputGroup}>
-					<label className={loginstyles.label}>Email</label>
-					<input
-						type="email"
-						className={loginstyles.input}
-						placeholder="Enter your email"
+					<TextField
+						required
+						id="email-input"
+						label="Email"
+						placeholder='Enter your email'
+						type='email'
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
+						error={['USER_NOT_FOUND', 'INVALID_CREDENTIALS', 'INVALID_EMAIL_TYPE'].includes(errorType) ? true : false}
+						color={['INVALID_CREDENTIALS'].includes(errorType) ? 'error' : 'primary'}
+						disabled={isLoggingIn ? true : false}
+						// helperText={email.length === 0 ? 'Email is required' : ''}
+						slotProps={{
+							input: {
+							  startAdornment: (
+								<InputAdornment position="start">
+							  		<MailOutlinedIcon />
+								</InputAdornment>
+							  ),
+							},
+						}}
 					/>
 				</div>
 
 				<div className={loginstyles.inputGroup}>
-					<label className={loginstyles.label}>Password</label>
-					<input
-						type="password"
-						className={loginstyles.input}
-						placeholder="Enter your password"
+					<TextField
+						required
+						id="password-input"
+						label="Password"
+						placeholder='Enter your password'
+						type='password'
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
+						error={['INVALID_CREDENTIALS'].includes(errorType) ? true : false}
+						color={['INVALID_CREDENTIALS'].includes(errorType) ? 'error' : 'primary'}
+						disabled={isLoggingIn ? true : false}
+						slotProps={{
+							input: {
+							  startAdornment: (
+								<InputAdornment position="start">
+							  		<PasswordOutlinedIcon />
+								</InputAdornment>
+							  ),
+							},
+						}}
 					/>
 				</div>
 
 				<div className="errorDiv">
-					{error && <p className={loginstyles.errorText}>{error}</p>}
+					{
+						errorMessage && 
+						<Alert severity="error">{errorMessage}</Alert>
+					}
 				</div>
 
 				<Button variant='contained' disabled={!enableLoginButton} onClick={handleLogin}>{'Login'}</Button>
@@ -138,7 +193,11 @@ const LoginPage = () => {
 
 			{/* RIGHT PANEL: Icon */}
 			<div className={loginstyles.rightPanel}>
-				<FlightTakeoffIcon className={loginstyles.flyingImage} />
+				<img 
+					src={planeImage} 
+					alt="Login Image" 
+					className={loginstyles.image}
+				/>
 			</div>
 		</div>
 	);
