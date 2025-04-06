@@ -30,7 +30,7 @@ const RegisterPage = () => {
 	const enableRegister: boolean = useMemo(() => {
 		// Check if email and password are provided
 		return email.length > 0 && password.length > 0 && firstName.length > 0 && lastName.length > 0;
-	}, [email, password]);
+	}, [email, password, firstName, lastName]);
 
 	const handleRegister = async () => {
 		const defaultRegisterRole = 'pilot';
