@@ -12,8 +12,7 @@ import DashboardPage from './client/pages/DashboardPage';
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path='/' element={<MainLayout />}>
-			<Route index element={<Home />}/>
-			<Route path='login' element={<LoginPage />}/>
+			<Route index element={<LoginPage />}/>
 			<Route path='register' element={<RegisterPage />}/>
 			<Route path='dashboard' element={<DashboardPage />}/>
 			<Route path='pilot' element={<Pilot />}/>

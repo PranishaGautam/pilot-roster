@@ -23,27 +23,27 @@ const RegisterPage = () => {
 				<div className={registerStyles.contentWrapper}>
 				<h1 className={registerStyles.logo}>Udaan</h1>
 				<h2 className={registerStyles.registerHeading}>Register</h2>
-				<p className={registerStyles.subtitle}>Please register via your Badge ID</p>
+				<p className={registerStyles.subtitle}>Please register via your email address</p>
 
 				<div className={registerStyles.inputGroup}>
-					<label className={registerStyles.label}>Enter Your ID Number</label>
+					<label className={registerStyles.label}>Enter your email address</label>
 					<input
-					type="text"
-					className={registerStyles.input}
-					placeholder="2149-XXXXX"
-					value={idNumber}
-					onChange={(e) => setIdNumber(e.target.value)}
+						type="text"
+						className={registerStyles.input}
+						placeholder="2149-XXXXX"
+						value={idNumber}
+						onChange={(e) => setIdNumber(e.target.value)}
 					/>
 				</div>
 
 				<div className={registerStyles.inputGroup}>
 					<label className={registerStyles.label}>Set Password</label>
 					<input
-					type="password"
-					className={registerStyles.input}
-					placeholder="********"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
+						type="password"
+						className={registerStyles.input}
+						placeholder="********"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</div>
 
