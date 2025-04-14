@@ -26,6 +26,8 @@ const FlightCrewAvailabilityTable = () => {
     const [crewData, setCrewData] = useState([
         {
             id: 'P001',
+            firstName: 'John',
+            lastName: 'Doe',
             role: 'Captain',
             status: 'Active',
             hoursFlown: 12,
@@ -33,6 +35,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P002',
+            firstName: 'Jane',
+            lastName: 'Smith',
             role: 'First Officer',
             status: 'Inactive',
             hoursFlown: 8,
@@ -40,6 +44,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P003',
+            firstName: 'Alice',
+            lastName: 'Johnson',
             role: 'Captain',
             status: 'Active',
             hoursFlown: 15,
@@ -47,6 +53,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P004',
+            firstName: 'Bob',
+            lastName: 'Brown',
             role: 'First Officer',
             status: 'Active',
             hoursFlown: 10,
@@ -54,6 +62,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P005',
+            firstName: 'Charlie',
+            lastName: 'Davis',
             role: 'Captain',
             status: 'Inactive',
             hoursFlown: 5,
@@ -61,6 +71,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P006',
+            firstName: 'David',
+            lastName: 'Wilson',
             role: 'First Officer',
             status: 'Active',
             hoursFlown: 20,
@@ -68,6 +80,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P007',
+            firstName: 'Eve',
+            lastName: 'Garcia',
             role: 'Captain',
             status: 'Active',
             hoursFlown: 18,
@@ -75,6 +89,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P008',
+            firstName: 'Frank',
+            lastName: 'Martinez',
             role: 'First Officer',
             status: 'Inactive',
             hoursFlown: 7,
@@ -82,6 +98,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P009',
+            firstName: 'Grace',
+            lastName: 'Hernandez',
             role: 'Captain',
             status: 'Active',
             hoursFlown: 14,
@@ -89,6 +107,8 @@ const FlightCrewAvailabilityTable = () => {
         },
         {
             id: 'P010',
+            firstName: 'Henry',
+            lastName: 'Lopez',
             role: 'First Officer',
             status: 'Active',
             hoursFlown: 11,
@@ -196,6 +216,7 @@ const FlightCrewAvailabilityTable = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell>Pilot ID</TableCell>
+                            <TableCell>Name</TableCell>
                             <TableCell>Role</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Hours Flown (Past 5 Days)</TableCell>
@@ -206,6 +227,7 @@ const FlightCrewAvailabilityTable = () => {
                         {paginatedData.map((crew, index) => (
                             <TableRow key={index}>
                                 <TableCell>{crew.id}</TableCell>
+                                <TableCell>{`${crew.firstName} ${crew.lastName}`}</TableCell>
                                 <TableCell>{crew.role}</TableCell>
                                 <TableCell>{crew.status}</TableCell>
                                 <TableCell>{crew.hoursFlown} hrs</TableCell>
