@@ -1,0 +1,16 @@
+
+.toolbarStyles {
+    padding: 0 !important;
+    margin-bottom: 1rem;
+}
+
+.selections {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.bottomRow {
+    display: flex;
+    gap: 1rem;
+}

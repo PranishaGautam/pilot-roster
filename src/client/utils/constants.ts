@@ -8,3 +8,5 @@ export const USER_PROFILE_PAGE_LINK = '/pilot';
 // REGEX validations
 
 export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
