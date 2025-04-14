@@ -354,13 +354,13 @@ const SchedulesTable = () => {
 						<div className={schedulesTableStyles.bottomRow}>
 							<LocalizationProvider dateAdapter={AdapterDayjs}>
 								<DatePicker
-									label="Start Date"
+									label="Departure Date"
 									value={startDate}
 									onChange={(newValue) => setStartDate(newValue)}
 								/>
 
 								<DatePicker
-									label="End Date"
+									label="Arrival Date"
 									value={endDate}
 									onChange={(newValue) => setEndDate(newValue)}
 								/>
