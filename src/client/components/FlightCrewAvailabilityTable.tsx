@@ -29,7 +29,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'John',
             lastName: 'Doe',
             role: 'Captain',
-            status: 'Active',
             hoursFlown: 12,
             availability: 'Available',
         },
@@ -38,7 +37,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Jane',
             lastName: 'Smith',
             role: 'First Officer',
-            status: 'Inactive',
             hoursFlown: 8,
             availability: 'Unavailable',
         },
@@ -47,7 +45,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Alice',
             lastName: 'Johnson',
             role: 'Captain',
-            status: 'Active',
             hoursFlown: 15,
             availability: 'Available',
         },
@@ -56,7 +53,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Bob',
             lastName: 'Brown',
             role: 'First Officer',
-            status: 'Active',
             hoursFlown: 10,
             availability: 'Available',
         },
@@ -65,7 +61,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Charlie',
             lastName: 'Davis',
             role: 'Captain',
-            status: 'Inactive',
             hoursFlown: 5,
             availability: 'Unavailable',
         },
@@ -74,7 +69,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'David',
             lastName: 'Wilson',
             role: 'First Officer',
-            status: 'Active',
             hoursFlown: 20,
             availability: 'Available',
         },
@@ -83,7 +77,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Eve',
             lastName: 'Garcia',
             role: 'Captain',
-            status: 'Active',
             hoursFlown: 18,
             availability: 'Available',
         },
@@ -92,7 +85,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Frank',
             lastName: 'Martinez',
             role: 'First Officer',
-            status: 'Inactive',
             hoursFlown: 7,
             availability: 'Unavailable',
         },
@@ -101,7 +93,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Grace',
             lastName: 'Hernandez',
             role: 'Captain',
-            status: 'Active',
             hoursFlown: 14,
             availability: 'Available',
         },
@@ -110,7 +101,6 @@ const FlightCrewAvailabilityTable = () => {
             firstName: 'Henry',
             lastName: 'Lopez',
             role: 'First Officer',
-            status: 'Active',
             hoursFlown: 11,
             availability: 'Available',
         },
@@ -218,7 +208,6 @@ const FlightCrewAvailabilityTable = () => {
                             <TableCell>Pilot ID</TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>Role</TableCell>
-                            <TableCell>Status</TableCell>
                             <TableCell>Hours Flown (Past 5 Days)</TableCell>
                             <TableCell>Availability</TableCell>
                         </TableRow>
@@ -229,7 +218,6 @@ const FlightCrewAvailabilityTable = () => {
                                 <TableCell>{crew.id}</TableCell>
                                 <TableCell>{`${crew.firstName} ${crew.lastName}`}</TableCell>
                                 <TableCell>{crew.role}</TableCell>
-                                <TableCell>{crew.status}</TableCell>
                                 <TableCell>{crew.hoursFlown} hrs</TableCell>
                                 <TableCell>{crew.availability}</TableCell>
                             </TableRow>
