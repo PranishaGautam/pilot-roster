@@ -15,7 +15,7 @@ import isLoading from '../hooks/isLoading';
 import { useToast } from '../hooks/useToast';
 
 import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
-import { LoginResponse } from '../models/response.interface';
+import { LoginResponse } from '../models/response-interface';
 
 const LoginPage = () => {
 
@@ -193,11 +193,11 @@ const LoginPage = () => {
 
 			{/* RIGHT PANEL: Icon */}
 			<div className={loginstyles.rightPanel}>
-				<img 
+				{/* <img 
 					src={planeImage} 
 					alt="Login Image" 
 					className={loginstyles.image}
-				/>
+				/> */}
 			</div>
 		</div>
 	);

@@ -16,6 +16,7 @@ import {
     MenuItem,
     SelectChangeEvent,
     IconButton,
+    Button,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -128,6 +129,11 @@ const FlightCrewAvailabilityTable = () => {
         setRole(event.target.value as string);
     };
 
+    // Logic to call backend to refresh data
+    const handleApplySelections = () => {
+        return true;
+    };
+
     // Handle refresh action
     const handleRefresh = () => {
         setAvailability('');
@@ -155,49 +161,55 @@ const FlightCrewAvailabilityTable = () => {
         <Box>
             {/* Toolbar for filters */}
             <Toolbar className={flightcrewStyles.toolbarStyles}>
-                <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-                    <InputLabel id="simple-select-label-availability">Availability</InputLabel>
-                    <Select
-                        labelId="simple-select-label-availability"
-                        id="simple-select-small"
-                        value={availability}
-                        label="Availability"
-                        onChange={handleSelectAvailability}
-                        autoWidth
-                        size='small'
-                    >
-                        {optionsOfAvailability.map((option, index) => (
-                            <MenuItem key={index} value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        ))}
-                        
-                    </Select>
-                </FormControl>
+                <div className={flightcrewStyles.selectionsDiv}>
+                    <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+                        <InputLabel id="simple-select-label-availability">Availability</InputLabel>
+                        <Select
+                            labelId="simple-select-label-availability"
+                            id="simple-select-small"
+                            value={availability}
+                            label="Availability"
+                            onChange={handleSelectAvailability}
+                            autoWidth
+                            size='small'
+                        >
+                            {optionsOfAvailability.map((option, index) => (
+                                <MenuItem key={index} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                            
+                        </Select>
+                    </FormControl>
 
-                <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-                    <InputLabel id="simple-select-label-role">Role</InputLabel>
-                    <Select
-                        labelId="simple-select-label-role"
-                        id="simple-select-small"
-                        value={role}
-                        label="Role"
-                        onChange={handleRoleSelection}
-                        autoWidth
-                        size='small'
-                    >
-                        {roleOptions.map((option, index) => (
-                            <MenuItem key={index} value={option.value}>
-                                {option.label}
-                            </MenuItem>
-                        ))}
-                        
-                    </Select>
-                </FormControl>
+                    <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+                        <InputLabel id="simple-select-label-role">Role</InputLabel>
+                        <Select
+                            labelId="simple-select-label-role"
+                            id="simple-select-small"
+                            value={role}
+                            label="Role"
+                            onChange={handleRoleSelection}
+                            autoWidth
+                            size='small'
+                        >
+                            {roleOptions.map((option, index) => (
+                                <MenuItem key={index} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                            
+                        </Select>
+                    </FormControl>
+                </div>
+                
 
-                <IconButton onClick={handleRefresh} sx={{ ml: 'auto' }}>
-                    <RefreshIcon />
-                </IconButton>
+                <div className={flightcrewStyles.buttonDiv}>
+                    <Button variant='contained' disabled={false} onClick={handleApplySelections}>{'Apply'}</Button>
+                    <IconButton onClick={handleRefresh} sx={{ ml: 'auto' }}>
+                        <RefreshIcon />
+                    </IconButton>
+                </div>
             </Toolbar>
 
             {/* Table */}

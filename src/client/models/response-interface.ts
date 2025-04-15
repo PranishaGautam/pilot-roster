@@ -41,3 +41,27 @@ export interface UserDetails {
     start_date: string;
     end_date: string;
 }
+
+export interface FlightDetails {
+    schedule: {
+        schedule_id: number;
+        flight_number: string;
+        origin: string;
+        destination: string;
+        start_time: string;
+        end_time: string;
+        status: string; // 'SCHEDULED', 'DELAYED', 'CANCELLED', 'COMPLETED', 'ON ROUTE'
+        metadata: string;
+    }
+    pilots?: {
+        pilot?: PilotDetail | null;
+        co_pilot?: PilotDetail | null;
+    }
+}
+
+export interface PilotDetail {
+    pilot_id: number;
+    first_name: string;
+    last_name: string;
+    role: string;
+}

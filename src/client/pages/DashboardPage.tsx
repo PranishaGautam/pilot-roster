@@ -41,49 +41,49 @@ const DashboardPage = () => {
 
 	return (
 		<div className={dashboardStyles.container}>
-			<NavBar />
+			{/* <NavBar /> */}
 
-		{/* MAIN CONTENT AREA */}
-		<main className={dashboardStyles.mainContent}>
-			{/* TOP BAR */}
-			<div className={dashboardStyles.topBar}>
-				<h1 className={dashboardStyles.pageTitle}>Himalaya Airlines</h1>
-				<div className={dashboardStyles.topUserInfo}>
-					<span className={dashboardStyles.userCircle}>PG</span>
-					<span style={{ marginLeft: 8 }}>Pranisha Gautam</span>
+			{/* MAIN CONTENT AREA */}
+			<main className={dashboardStyles.mainContent}>
+				{/* TOP BAR */}
+				<div className={dashboardStyles.topBar}>
+					<h1 className={dashboardStyles.pageTitle}>Himalaya Airlines</h1>
+					<div className={dashboardStyles.topUserInfo}>
+						<span className={dashboardStyles.userCircle}>PG</span>
+						<span style={{ marginLeft: 8 }}>Pranisha Gautam</span>
+					</div>
 				</div>
-			</div>
 
-			{/* ACTIVITY SECTION */}
-			<section className={dashboardStyles.activitySection}>
-				<h2 className={dashboardStyles.sectionTitle}>Activity</h2>
-				<div className={dashboardStyles.activityCards}>
-					{cardDisplayContents.map((content, index) => (
-						<DisplayCard 
-							cardTitle={content.title} 
-							cardValue={content.value} 
-							percentageIndicator={content.percentageIndicator} 
-							percentageChange={content.percentageChange} 
-							cardDate={content.date}						
-						/>
-					))}
-				</div>
-			</section>
+				{/* ACTIVITY SECTION */}
+				<section className={dashboardStyles.activitySection}>
+					<h2 className={dashboardStyles.sectionTitle}>Activity</h2>
+					<div className={dashboardStyles.activityCards}>
+						{cardDisplayContents.map((content, index) => (
+							<DisplayCard 
+								cardTitle={content.title} 
+								cardValue={content.value} 
+								percentageIndicator={content.percentageIndicator} 
+								percentageChange={content.percentageChange} 
+								cardDate={content.date}						
+							/>
+						))}
+					</div>
+				</section>
 
-			
-			{/* FLIGHT SCHEDULE SECTION */}
-			<section>
-				<h2 className={dashboardStyles.sectionTitle}>Flight Schedules</h2>
-				<SchedulesTable />
-			</section>
+				
+				{/* FLIGHT SCHEDULE SECTION */}
+				<section>
+					<h2 className={dashboardStyles.sectionTitle}>Flight Schedules</h2>
+					<SchedulesTable />
+				</section>
 
-			{/* FLIGHT CREW AVAILABILITY */}
-			<section className={dashboardStyles.crewSection}>
-				<h2 className={dashboardStyles.sectionTitle}>Flight Crew Availability</h2>
-				<FlightCrewAvailabilityTable />
-			</section>
+				{/* FLIGHT CREW AVAILABILITY */}
+				<section className={dashboardStyles.crewSection}>
+					<h2 className={dashboardStyles.sectionTitle}>Flight Crew Availability</h2>
+					<FlightCrewAvailabilityTable />
+				</section>
 
-		</main>
+			</main>
 		</div>
 	);
 };

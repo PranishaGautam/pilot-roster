@@ -3,10 +3,15 @@ import { trackPromise } from 'react-promise-tracker';
 import { useCallback } from 'react';
 
 import { 
+	FlightDetailQueryParams 
+} from '../models/requests-interface';
+
+import { 
 	LoginPayload, LoginResponse, LoginError,
 	RegisterPayload, RegisterResponse, 
-	UserDetails
-} from '../models/response.interface';
+	UserDetails,
+	FlightDetails
+} from '../models/response-interface';
 
 import { useAuth } from '../context/AuthContext';
 
@@ -22,9 +27,7 @@ const apiClient = axios.create({
 });
 
 // Axios instance for endpoints that require authentication
-const apiClientWithAuth = () => {
-	const { token } = useAuth(); // Access the token from the AuthContext
-  
+const apiClientWithAuth = (token: string) => {  
 	return axios.create({
 		baseURL: BASE_URL,
 		headers: {
@@ -43,8 +46,9 @@ const handleApiError = (error: any) => {
 interface useBackendActionsReturn {
 	login: (payload: string, trackingArea: string) => Promise<LoginResponse | LoginError>;
 	register: (payload: string, trackingArea: string) => Promise<RegisterResponse>;
-	getUserDetailById: (userId: string, trackingArea: string) => Promise<UserDetails>;
-	getAllUsers: (trackingArea: string) => Promise<Array<UserDetails>>;
+	getUserDetailById: (userId: string, token: string, trackingArea: string) => Promise<UserDetails>;
+	getAllUsers: (trackingArea: string, token: string) => Promise<Array<UserDetails>>;
+	getFlightDetails: (trackingArea: string, token: string, queryParams?: FlightDetailQueryParams) => Promise<Array<FlightDetails>>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -110,9 +114,9 @@ export function useBackendActions(): useBackendActionsReturn {
 	}, []);
 
 	// Function to fetch user details by ID
-	const getUserDetailById = useCallback(async (userId: string, trackingArea: string) => {
+	const getUserDetailById = useCallback(async (userId: string, token: string, trackingArea: string) => {
 		try {
-			const client = apiClientWithAuth(); // Create an authenticated client
+			const client = apiClientWithAuth(token); // Create an authenticated client
 			const response = await trackPromise(client.get(`/user/${userId}`), trackingArea);
 			if (response.status !== 200) {
 				console.log('Failed to fetch user details', response.status);
@@ -124,9 +128,9 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
-	const getAllUsers = useCallback(async (trackingArea: string) => {
+	const getAllUsers = useCallback(async (trackingArea: string, token: string) => {
 		try {	
-			const client = apiClientWithAuth(); // Create an authenticated client
+			const client = apiClientWithAuth(token); // Create an authenticated client
 			const response = await trackPromise(client.get(`/users`), trackingArea);
 			if (response.status !== 200) {
 				console.log('Failed to fetch all users', response.status);
@@ -139,11 +143,28 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const getFlightDetails = useCallback(async (trackingArea: string, token: string, queryParams?: FlightDetailQueryParams) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/flights`, { params: queryParams }), trackingArea);
+			// const response = await trackPromise(client.get(`/flights`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch flight details', response.status);
+				throw new Error('Failed to fetch flight details');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	return {
 		login,
 		register,
 		getUserDetailById,
-		getAllUsers
+		getAllUsers,
+		getFlightDetails,
 	}
 
 }

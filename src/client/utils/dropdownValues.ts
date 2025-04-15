@@ -1,0 +1,58 @@
+export const originOptions = [
+    { label: 'New York', value: 'New York' },
+    { label: 'Los Angeles', value: 'Los Angeles' },
+    { label: 'London', value: 'London' },
+    { label: 'Paris', value: 'Paris' },
+    { label: 'Beijing', value: 'Beijing' },
+    { label: 'Shanghai', value: 'Shanghai' },
+    { label: 'Dubai', value: 'Dubai' },
+    { label: 'Mumbai', value: 'Mumbai' },
+    { label: 'Kathmandu', value: 'Kathmandu' },
+    { label: 'Pokhara', value: 'Pokhara' },
+    { label: 'Sydney', value: 'Sydney' },
+    { label: 'Tokyo', value: 'Tokyo' },
+    { label: 'Singapore', value: 'Singapore' },
+    { label: 'Bangkok', value: 'Bangkok' },
+    { label: 'Biratnagar', value: 'Biratnagar' },
+    { label: 'Bharatpur', value: 'Bharatpur' },
+    { label: 'Lukla', value: 'Lukla' },
+    { label: 'Janakpur', value: 'Janakpur' },
+    { label: 'Nepalgunj', value: 'Nepalgunj' },
+    { label: 'Simara', value: 'Simara' },
+];
+
+export const destinationOptions = [
+    { label: 'New York', value: 'New York' },
+    { label: 'Los Angeles', value: 'Los Angeles' },
+    { label: 'London', value: 'London' },
+    { label: 'Paris', value: 'Paris' },
+    { label: 'Beijing', value: 'Beijing' },
+    { label: 'Shanghai', value: 'Shanghai' },
+    { label: 'Dubai', value: 'Dubai' },
+    { label: 'Mumbai', value: 'Mumbai' },
+    { label: 'Kathmandu', value: 'Kathmandu' },
+    { label: 'Pokhara', value: 'Pokhara' },
+    { label: 'Sydney', value: 'Sydney' },
+    { label: 'Tokyo', value: 'Tokyo' },
+    { label: 'Singapore', value: 'Singapore' },
+    { label: 'Bangkok', value: 'Bangkok' },
+    { label: 'Biratnagar', value: 'Biratnagar' },
+    { label: 'Bharatpur', value: 'Bharatpur' },
+    { label: 'Lukla', value: 'Lukla' },
+    { label: 'Janakpur', value: 'Janakpur' },
+    { label: 'Nepalgunj', value: 'Nepalgunj' },
+    { label: 'Simara', value: 'Simara' },
+];
+
+export const assignedOptions = [
+    { label: 'Assigned', value: 'true' },
+    { label: 'Not Assigned', value: 'false' }
+];
+
+export const statusOptions = [
+    { label: 'Scheduled', value: 'SCHEDULED' },
+    { label: 'Delayed', value: 'DELAYED' },
+    { label: 'Cancelled', value: 'CANCELLED' },
+    { label: 'Completed', value: 'COMPLETED' },
+    { label: 'On Route', value: 'ON ROUTE' }
+];
