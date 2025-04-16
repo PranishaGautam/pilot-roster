@@ -3,14 +3,17 @@ import { trackPromise } from 'react-promise-tracker';
 import { useCallback } from 'react';
 
 import { 
-	FlightDetailQueryParams 
+	AssignPilotRequestBody,
+	FlightDetailQueryParams, 
+	PilotDetailQueryParams
 } from '../models/requests-interface';
 
 import { 
 	LoginPayload, LoginResponse, LoginError,
 	RegisterPayload, RegisterResponse, 
 	UserDetails,
-	FlightDetails
+	FlightDetails,
+	PilotResponse,
 } from '../models/response-interface';
 
 import { useAuth } from '../context/AuthContext';
@@ -49,6 +52,9 @@ interface useBackendActionsReturn {
 	getUserDetailById: (userId: string, token: string, trackingArea: string) => Promise<UserDetails>;
 	getAllUsers: (trackingArea: string, token: string) => Promise<Array<UserDetails>>;
 	getFlightDetails: (trackingArea: string, token: string, queryParams?: FlightDetailQueryParams) => Promise<Array<FlightDetails>>;
+	getAllPilots: (trackingArea: string, token: string, queryParams?: PilotDetailQueryParams) => Promise<Array<PilotResponse>>;
+	getPilotById: (trackingArea: string, token: string, userId: string) => Promise<PilotResponse>;
+	assignPilotToFlight: (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => Promise<void>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -159,12 +165,57 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const getAllPilots = useCallback(async (trackingArea: string, token: string, queryParams?: PilotDetailQueryParams) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/pilots`, { params: queryParams }), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch all pilots', response.status);
+				throw new Error('Failed to fetch all pilots');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const getPilotById = useCallback(async (userId: string, token: string, trackingArea: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/pilots/pilot/${userId}`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch pilot details', response.status);
+				throw new Error('Failed to fetch pilot details');
+			}
+			return response.data;
+		} catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const assignPilotToFlight = useCallback(async (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.put(`/schedules/assign/${scheduleId}`, body), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to assign pilot to flight', response.status);
+				throw new Error('Failed to assign pilot to flight');
+			}
+			return response.data;
+		} catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	return {
 		login,
 		register,
 		getUserDetailById,
 		getAllUsers,
 		getFlightDetails,
+		getAllPilots,
+		getPilotById,
+		assignPilotToFlight,
 	}
-
 }

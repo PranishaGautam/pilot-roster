@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Modal,
     Box,
@@ -11,36 +11,85 @@ import {
     IconButton
 } from '@mui/material';
 
+import Spinner from './Spinner';
+
+import { useBackendActions } from '../hooks/callBackend';
+import isLoading from '../hooks/isLoading';
+import { useToast } from '../hooks/useToast';
+import { useAuth } from '../context/AuthContext';
+import { PilotResponse, FlightDetails } from '../models/response-interface';
+import { toast } from 'react-toastify';
+
 interface Props {
     isOpen: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    onAssign: (pilotId: string) => void;
+    scheduleId: string | null;
+    assignType: string | null;
+    setAssignType: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const PilotListModal = ({ isOpen, setIsOpen, onAssign }: Props) => {
+const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignType }: Props) => {
+
+    const { token } = useAuth();
     
-    const [selectedPilot, setSelectedPilot] = useState<string | null>(null);
+    const { getAllPilots, assignPilotToFlight } = useBackendActions();
+    const { successToast, errorToast } = useToast();
 
-    // Sample list of pilots
-    const pilots = [
-        'Abhishek Bhandari',
-        'Prativa Shrestha',
-        'Ramesh Karki',
-        'Sita Rai',
-    ];
-
-    // Handle pilot selection
-    const handleSelectPilot = (pilot: string) => {
-        setSelectedPilot(pilot);
-    };
+    const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
+    const [selectedPilot, setSelectedPilot] = useState<PilotResponse | null>(null);
 
     // Handle assign action
     const handleAssign = () => {
-        if (selectedPilot) {
-            onAssign(selectedPilot); // Call the parent method with the selected pilot
-            setIsOpen(false); // Close the modal
+        if (!selectedPilot) {
+            toast.error('Please select a pilot to assign!');
+        }
+
+        if (!scheduleId) {
+            toast.error('Schedule ID is missing!');
+            return;
+        }
+        if (!assignType) {
+            toast.error('Assign type is missing!');
+            return;
+        }
+
+        if (token && scheduleId && assignType && selectedPilot) {
+            assignPilotToFlight('assign-pilot-area', token, scheduleId, { assignType, pilotId: selectedPilot.pilot_id })
+            .then((response) => {
+                console.log('Pilot assigned successfully:', response);
+                successToast('Pilot assigned successfully!');
+                setIsOpen(false);
+                setAssignType(null);
+            })
+            .catch((error) => {
+                console.log(error);
+                errorToast('Failed to assign pilot!');
+            });
         }
     };
+
+    const getPilots = () => {
+        if (token) {
+            getAllPilots('pilot-area', token)
+                .then((data) => {
+                    // successToast('Pilots fetched successfully!');
+                    console.log('Fetched pilots:', data);
+                    setPilotList(data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    errorToast('Failed to fetch pilots!');
+                });
+        } else {
+            errorToast('Authentication token is missing. Please log in again.');
+        }
+    }
+
+    useEffect(() => {
+        getPilots();
+    }, []);
+
+    const isFetchingPilotList = isLoading('pilot-area');
 
     return (
         <Modal open={isOpen} onClose={() => setIsOpen(false)}>
@@ -61,16 +110,37 @@ const PilotListModal = ({ isOpen, setIsOpen, onAssign }: Props) => {
                     Select a Pilot
                 </Typography>
                 <List>
-                    {pilots.map((pilot, index) => (
-                        <ListItem key={index} disablePadding>
-                            <ListItemButton
-                                selected={selectedPilot === pilot}
-                                onClick={() => handleSelectPilot(pilot)}
-                            >
-                                <ListItemText primary={pilot} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
+                    {
+                        isFetchingPilotList ? (
+                            <Spinner
+                                color='primary'
+                                size={60}
+					        />
+                        ) : (
+                            <>
+                                {
+                                    pilotList.length === 0 ? (
+                                        <Typography variant="body1" sx={{ textAlign: 'center', mt: 2 }}>
+                                            No pilots available.
+                                        </Typography>
+                                    ) : (
+                                        pilotList.map((pilot, index) => (
+                                            <ListItem key={index} disablePadding>
+                                                <ListItemButton
+                                                    selected={selectedPilot === pilot}
+                                                    onClick={() => setSelectedPilot(pilot)}
+                                                >
+                                                    <ListItemText primary={`${pilot.first_name} ${pilot.last_name}`} />
+                                                </ListItemButton>
+                                            </ListItem>
+                                        ))
+                                    )
+                                    
+                                }
+                            </>
+                        )
+                    }
+                    
                 </List>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
                     <Button onClick={() => setIsOpen(false)} sx={{ mr: 2 }}>

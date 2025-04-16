@@ -44,9 +44,10 @@ import { useAuth } from '../context/AuthContext';
 import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
 import { FlightDetailQueryParams } from '../models/requests-interface';
 import Spinner from './Spinner';
-import { FlightDetails, PilotDetail } from '../models/response-interface';
+import { FlightDetails, PilotDetail, PilotResponse } from '../models/response-interface';
 
 interface ScheduleTableData {
+	scheduleId: number;
 	flightNumber: string;
 	origin: string;
 	destination: string;
@@ -123,40 +124,12 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 	);
 }
 
-function createScheduleData(
-	flightNumber: string,
-	origin: string,
-	destination: string,
-	departureTime: string,
-	arrivalTime: string,
-	status: string,
-	pilot: PilotDetail | null,
-	coPilot: PilotDetail | null
-) {
-	return {
-		flightNumber,
-		origin,
-		destination,
-		departureTime,
-		arrivalTime,
-		status,
-		pilot,
-		coPilot,
-	};
-}
-
-interface Props {
-	schedules: string[];
-	pilots: string[];
-}
 
 const SchedulesTable = () => {
 
 	const { token, role } = useAuth();
-	console.log('Token:', token);
-	console.log('Role:', role);
 
-	const { getFlightDetails } = useBackendActions();
+	const { getFlightDetails, assignPilotToFlight } = useBackendActions();
 	const { successToast, errorToast } = useToast();
 
 	const [page, setPage] = React.useState(0);
@@ -164,88 +137,9 @@ const SchedulesTable = () => {
 
 	const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
 
-	// const rows: Array<ScheduleTableData> = [
-	// 	createScheduleData(
-	// 		'AA101',
-	// 		'New York',
-	// 		'Los Angeles',
-	// 		'2023-10-01T08:00:00',
-	// 		'2023-10-01T11:00:00',
-	// 		'On Time',
-	// 		null,
-	// 		'Jane Smith'
-	// 	),
-	// 	createScheduleData(
-	// 		'BA202',
-	// 		'London',
-	// 		'Paris',
-	// 		'2023-10-02T09:00:00',
-	// 		'2023-10-02T10:30:00',
-	// 		'Delayed',
-	// 		'Alice Johnson',
-	// 		'Bob Brown'
-	// 	),
-	// 	createScheduleData(
-	// 		'CA303',
-	// 		'Beijing',
-	// 		'Shanghai',
-	// 		'2023-10-03T14:00:00',
-	// 		'2023-10-03T16:00:00',
-	// 		'Cancelled',
-	// 		null,
-	// 		'Diana White'
-	// 	),
-	// 	createScheduleData(
-	// 		'DA404',
-	// 		'Dubai',
-	// 		'Mumbai',
-	// 		'2023-10-04T18:00:00',
-	// 		'2023-10-04T20:30:00',
-	// 		'On Time',
-	// 		'Edward Green',
-	// 		'Fiona Black'
-	// 	),
-	// 	createScheduleData(
-	// 		'EA505',
-	// 		'Sydney',
-	// 		'Melbourne',
-	// 		'2023-10-05T07:00:00',
-	// 		'2023-10-05T08:30:00',
-	// 		'On Time',
-	// 		'George King',
-	// 		null
-	// 	),
-	// 	createScheduleData(
-	// 		'FA606',
-	// 		'Tokyo',
-	// 		'Osaka',
-	// 		'2023-10-06T12:00:00',
-	// 		'2023-10-06T13:30:00',
-	// 		'On Time',
-	// 		'Ian Knight',
-	// 		'Julia Prince'
-	// 	),
-	// 	createScheduleData(
-	// 		'GA707',
-	// 		'Rio de Janeiro',
-	// 		'Sao Paulo',
-	// 		'2023-10-07T15:00:00',
-	// 		'2023-10-07T16:30:00',
-	// 		'On Time',
-	// 		'Kevin Bishop',
-	// 		'Liam Knight'
-	// 	),
-	// 	createScheduleData(
-	// 		'HA808',
-	// 		'Honolulu',
-	// 		'Maui',
-	// 		'2023-10-08T10:00:00',
-	// 		'2023-10-08T11:30:00',
-	// 		'On Time',
-	// 		'Mia Turner',
-	// 		'Noah Scott'
-	// 	)
-	// ];
+	const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+	const [assignPilotType, setPilotAssignType] = useState<string | null>(null);
+	const [isPilotListModalOpen, setIsPilotListModalOpen] = useState(false);
 
 	const [origin, setOrigin] = useState('');
 	const [destination, setDestination] = useState('');
@@ -270,24 +164,24 @@ const SchedulesTable = () => {
 				if (response.length === 0) {
 					errorToast('No schedules found for the selected criteria.');
 				} else {
-					const formattedSchedules = response.map((schedule: FlightDetails) => {
+					const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
 
 						const assignedPilot = schedule?.pilots?.pilot ?? null;
 						const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
 
-						return createScheduleData(
-							schedule.schedule.flight_number,
-							schedule.schedule.origin,
-							schedule.schedule.destination,
-							moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
-							moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
-							schedule.schedule.status,
-							assignedPilot ?? null,
-							assignedCoPilot ?? null
-						);
+						return {
+							scheduleId: schedule.schedule.schedule_id,
+							flightNumber: schedule.schedule.flight_number,
+							origin: schedule.schedule.origin,
+							destination: schedule.schedule.destination,
+							departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
+							arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
+							status: schedule.schedule.status,
+							pilot: assignedPilot ?? null,
+							coPilot: assignedCoPilot ?? null
+						}
 					});
 					setScheduleData(formattedSchedules);
-					successToast('Schedules fetched successfully!');
 				}
 			})
 			.catch((error) => {
@@ -300,6 +194,7 @@ const SchedulesTable = () => {
 		}
 	}
 
+	// Handler to refresh selections
 	const handleRefreshSelections = () => {
 		setOrigin('');
 		setDestination('');
@@ -315,13 +210,10 @@ const SchedulesTable = () => {
 		setPage(0);
 	}
 
-	const isFetchingData = isLoading('schedules-area');
-
-	const [isPilotListModalOpen, setIsPilotListModalOpen] = useState(false);
-
-	const handlePilotAssignment = (pilotId: string) => {
-		// Handle pilot assignment logic here
-		console.log(`Pilot ${pilotId} assigned`);
+	const handlePilotAssignment = (flight: ScheduleTableData, assignType: string) => {
+		setSelectedScheduleId(flight.scheduleId.toString());
+		setPilotAssignType(assignType);
+		setIsPilotListModalOpen(true);
 	}
 
 	// Avoid a layout jump when reaching the last page with empty rows.
@@ -342,6 +234,8 @@ const SchedulesTable = () => {
 			getFlightDetailsData();
 		}
 	}, []);
+
+	const isFetchingData = isLoading('schedules-area');
 
 	return (
 		<>
@@ -486,7 +380,7 @@ const SchedulesTable = () => {
 													(row.pilot !== null )
 														? `${row.pilot.first_name} ${row.pilot.last_name}` 
 														: (
-															<Button variant='outlined' disabled={false} onClick={() => setIsPilotListModalOpen(true)}>{'Assign'}</Button>
+															<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
 														)
 												}
 											</TableCell>
@@ -495,7 +389,7 @@ const SchedulesTable = () => {
 													(row.coPilot !== null)
 														? `${row.coPilot.first_name} ${row.coPilot.last_name}` 
 														: (
-															<Button variant='outlined' disabled={false} onClick={() => setIsPilotListModalOpen(true)}>{'Assign'}</Button>
+															<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
 														)
 												}
 											</TableCell>
@@ -525,14 +419,6 @@ const SchedulesTable = () => {
 									count={scheduleData.length}
 									rowsPerPage={rowsPerPage}
 									page={page}
-									// slotProps={{
-									// 	select: {
-									// 	inputProps: {
-									// 		'aria-label': 'rows per page',
-									// 	},
-									// 	native: true,
-									// 	},
-									// }}
 									onPageChange={handleChangePage}
 									onRowsPerPageChange={handleChangeRowsPerPage}
 									ActionsComponent={TablePaginationActions}
@@ -546,7 +432,9 @@ const SchedulesTable = () => {
 			<PilotListModal 
 				isOpen={isPilotListModalOpen} 
 				setIsOpen={setIsPilotListModalOpen} 
-				onAssign={handlePilotAssignment}
+				scheduleId={selectedScheduleId}
+				assignType={assignPilotType}
+				setAssignType={setPilotAssignType}
 			/>
 		</>
 	);

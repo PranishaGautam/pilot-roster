@@ -65,3 +65,18 @@ export interface PilotDetail {
     last_name: string;
     role: string;
 }
+
+export interface PilotResponse {
+    pilot_id: number;
+    user_id: number;
+    license_no: string;
+    license_specs: string;
+    experience_in_yrs: number;
+    role: string;
+    hours_flown: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    start_date: string;
+    end_date: string;
+}

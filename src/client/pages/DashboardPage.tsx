@@ -60,6 +60,7 @@ const DashboardPage = () => {
 					<div className={dashboardStyles.activityCards}>
 						{cardDisplayContents.map((content, index) => (
 							<DisplayCard 
+								key={index}
 								cardTitle={content.title} 
 								cardValue={content.value} 
 								percentageIndicator={content.percentageIndicator} 

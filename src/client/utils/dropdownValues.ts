@@ -1,3 +1,9 @@
+// This file contains the dropdown values for the various dropdowns in the application.
+
+// *************************************
+// Flight Schedule Table
+// *************************************
+
 export const originOptions = [
     { label: 'New York', value: 'New York' },
     { label: 'Los Angeles', value: 'Los Angeles' },
@@ -56,3 +62,18 @@ export const statusOptions = [
     { label: 'Completed', value: 'COMPLETED' },
     { label: 'On Route', value: 'ON ROUTE' }
 ];
+
+// *************************************
+// Flight Crew Availability Table
+// *************************************
+
+export const pilotRoleOptions = [
+    { value: 'Captain', label: 'Captain' },
+    { value: 'First Officer', label: 'First Officer' },
+    { value: 'Second Officer', label: 'Second Officer' }
+];
+
+export const optionsOfAvailability = [
+        { value: 'true', label: 'Available' },
+        { value: 'false', label: 'Unavailable' }
+    ];
