@@ -8,6 +8,9 @@ import Pilot from './client/pages/Pilot';
 import LoginPage from './client/pages/LoginPage';
 import RegisterPage from './client/pages/RegisterPage';
 import DashboardPage from './client/pages/DashboardPage';
+import RequestLeaveForm from './client/components/RequestLeaveForm';
+import ReportIssueForm from './client/components/ReportIssueForm';
+import ViewSchedule from './client/components/ViewSchedule';
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -17,6 +20,9 @@ const router = createBrowserRouter(
 			<Route path='dashboard' element={<DashboardPage />}/>
 			<Route path='pilot' element={<Pilot />}/>
 			<Route path='admin' element={<Admin />}/>
+			<Route path="/request-leave" element={<RequestLeaveForm />} />
+			<Route path="/report-issue" element={<ReportIssueForm />} />
+			<Route path="/view-schedule" element={<ViewSchedule />} />
 		</Route>
 	)
 )
