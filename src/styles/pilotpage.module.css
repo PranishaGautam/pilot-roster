@@ -1,0 +1,17 @@
+.activityCards {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 1rem;
+}
+
+.card {
+    height: 8rem;
+    /* min-width: fit-content; */
+    min-width: 8rem;
+}
+
+.activitySection {
+    margin: 1rem 0;
+    display: flex;
+    gap: 1rem;
+}

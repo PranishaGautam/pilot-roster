@@ -5,6 +5,7 @@ import NavBar from '../components/NavBar';
 import DisplayCard from '../components/DisplayCard';
 import SchedulesTable from '../components/SchedulesTable';
 import FlightCrewAvailabilityTable from '../components/FlightCrewAvailabilityTable';
+import TopNavBar from '../components/TopNavBar';
 
 const DashboardPage = () => {
 
@@ -46,13 +47,7 @@ const DashboardPage = () => {
 			{/* MAIN CONTENT AREA */}
 			<main className={dashboardStyles.mainContent}>
 				{/* TOP BAR */}
-				<div className={dashboardStyles.topBar}>
-					<h1 className={dashboardStyles.pageTitle}>Himalaya Airlines</h1>
-					<div className={dashboardStyles.topUserInfo}>
-						<span className={dashboardStyles.userCircle}>PG</span>
-						<span style={{ marginLeft: 8 }}>Pranisha Gautam</span>
-					</div>
-				</div>
+				<TopNavBar/>
 
 				{/* ACTIVITY SECTION */}
 				<section className={dashboardStyles.activitySection}>
