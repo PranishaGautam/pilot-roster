@@ -52,7 +52,6 @@ import { TablePaginationActionsProps } from '../models/table-pagination-interfac
 
 import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
 
-
 function TablePaginationActions(props: TablePaginationActionsProps) {
 	const theme = useTheme();
 	const { count, page, rowsPerPage, onPageChange } = props;
@@ -111,13 +110,13 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 
 const SchedulesTable = () => {
 
-	const { token } = useAuth();
+	const { token, role } = useAuth();
 
-	const { getFlightDetails } = useBackendActions();
+	const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
 	const { errorToast } = useToast();
 
-	const [page, setPage] = React.useState(0);
-  	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const [page, setPage] = useState(0);
+  	const [rowsPerPage, setRowsPerPage] = useState(5);
 
 	const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
 
@@ -142,38 +141,73 @@ const SchedulesTable = () => {
 		};
 
 		if (token) {
-			// Call the backend API with the selected parameters
-			getFlightDetails('schedules-area', token, params)
-			.then((response) => {
-				if (response.length === 0) {
-					errorToast('No schedules found for the selected criteria.');
+			if (role === 'admin') {
+				// Call the backend API with the selected parameters
+				getFlightDetails('schedules-area', token, params)
+				.then((response) => {
+					if (response.length === 0) {
+						errorToast('No schedules found for the selected criteria.');
+						setScheduleData([]);
+					} else {
+						const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
+
+							const assignedPilot = schedule?.pilots?.pilot ?? null;
+							const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
+
+							return {
+								scheduleId: schedule.schedule.schedule_id,
+								flightNumber: schedule.schedule.flight_number,
+								origin: schedule.schedule.origin,
+								destination: schedule.schedule.destination,
+								departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
+								arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
+								status: schedule.schedule.status,
+								pilot: assignedPilot ?? null,
+								coPilot: assignedCoPilot ?? null
+							}
+						});
+						setScheduleData(formattedSchedules);
+					}
+				})
+				.catch((error) => {
+					console.error('Error fetching flight details:', error);
+					errorToast('Error fetching flight details. Please try again.');
 					setScheduleData([]);
-				} else {
-					const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
+				});
+			} else if (role === 'pilot') {
+				// Call the backend API with the selected parameters
+				getFlightDetailsByPilotId('schedules-area', token, '3')
+				.then((response) => {
+					if (response.length === 0) {
+						errorToast('No schedules found for the pilot');
+						setScheduleData([]);
+					} else {
+						const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
 
-						const assignedPilot = schedule?.pilots?.pilot ?? null;
-						const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
+							const assignedPilot = schedule?.pilots?.pilot ?? null;
+							const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
 
-						return {
-							scheduleId: schedule.schedule.schedule_id,
-							flightNumber: schedule.schedule.flight_number,
-							origin: schedule.schedule.origin,
-							destination: schedule.schedule.destination,
-							departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
-							arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
-							status: schedule.schedule.status,
-							pilot: assignedPilot ?? null,
-							coPilot: assignedCoPilot ?? null
-						}
-					});
-					setScheduleData(formattedSchedules);
-				}
-			})
-			.catch((error) => {
-				console.error('Error fetching flight details:', error);
-				errorToast('Error fetching flight details. Please try again.');
-				setScheduleData([]);
-			});
+							return {
+								scheduleId: schedule.schedule.schedule_id,
+								flightNumber: schedule.schedule.flight_number,
+								origin: schedule.schedule.origin,
+								destination: schedule.schedule.destination,
+								departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
+								arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
+								status: schedule.schedule.status,
+								pilot: assignedPilot ?? null,
+								coPilot: assignedCoPilot ?? null
+							}
+						});
+						setScheduleData(formattedSchedules);
+					}
+				})
+				.catch((error) => {
+					console.error('Error fetching flight details:', error);
+					errorToast('Error fetching flight details. Please try again.');
+					setScheduleData([]);
+				});
+			}
 		} else {
 			errorToast('Authentication token is missing. Please log in again.');
 		}
@@ -195,6 +229,7 @@ const SchedulesTable = () => {
 		setPage(0);
 	}
 
+	//Handler to assign the pilot to the flight
 	const handlePilotAssignment = (flight: ScheduleTableData, assignType: string) => {
 		setSelectedScheduleId(flight.scheduleId.toString());
 		setPilotAssignType(assignType);
@@ -224,104 +259,100 @@ const SchedulesTable = () => {
 
 	return (
 		<>
-			{/* {
-				isFetchingData && 
-					<Spinner
-						color='primary'
-						size={60}
-					/>
-			} */}
 			<Box>
-				<Toolbar className={schedulesTableStyles.toolbarStyles}>
-					<div className={schedulesTableStyles.selections}>
-						<div className={schedulesTableStyles.topRow}>
-							<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
-								<InputLabel id="simple-select-label-origin">Origin</InputLabel>
-								<Select
-									labelId="simple-select-label-origin"
-									id="simple-select-medium"
-									value={origin}
-									label="Origin"
-									onChange={(event: SelectChangeEvent) => setOrigin(event.target.value)}
-									autoWidth
-									size='medium'
-								>
-									{
-										originOptions.map((option, index) => (
-											<MenuItem key={index} value={option.value}>
-												{option.label}
-											</MenuItem>
-										))
-									}
-								</Select>
-							</FormControl>
-			
-							<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
-								<InputLabel id="simple-select-label-role">Destination</InputLabel>
-								<Select
-									labelId="simple-select-label-role"
-									id="simple-select-medium"
-									value={destination}
-									label="Destination"
-									onChange={(event: SelectChangeEvent) => setDestination(event.target.value)}
-									autoWidth
-									size='medium'
-								>
-									{destinationOptions.map((option, index) => (
-										<MenuItem key={index} value={option.value}>
-											{option.label}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-
-							<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
-								<InputLabel id="simple-select-label-role">Assignment</InputLabel>
-								<Select
-									labelId="simple-select-label-role"
-									id="simple-select-medium"
-									value={isAssigned}
-									label="Assignment"
-									onChange={(event: SelectChangeEvent) => setIsAssigned(event.target.value)}
-									autoWidth
-									size='medium'
-								>
-									{
-										assignedOptions.map((option, index) => (
-											<MenuItem key={index} value={option.value}>
-												{option.label}
-											</MenuItem>
-										))
-									}
-								</Select>
-							</FormControl>
-						</div>
-
-						<div className={schedulesTableStyles.bottomRow}>
-							<LocalizationProvider dateAdapter={AdapterDayjs}>
-								<DatePicker
-									label="Departure Date"
-									value={startDate}
-									onChange={(newValue) => setStartDate(newValue)}
-								/>
-
-								<DatePicker
-									label="Arrival Date"
-									value={endDate}
-									onChange={(newValue) => setEndDate(newValue)}
-								/>
-							</LocalizationProvider>
-						</div>
-					</div>
-
-					<div className={schedulesTableStyles.buttonDiv}>
-						<Button variant='contained' disabled={false} onClick={handleScheduleSelections}>{'Apply'}</Button>
-						<IconButton onClick={handleRefreshSelections} sx={{ ml: 'auto' }}>
-							<RefreshIcon />
-						</IconButton>
-					</div>
+				{
+					(role === 'admin') && (
+						<Toolbar className={schedulesTableStyles.toolbarStyles}>
+							<div className={schedulesTableStyles.selections}>
+								<div className={schedulesTableStyles.topRow}>
+									<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
+										<InputLabel id="simple-select-label-origin">Origin</InputLabel>
+										<Select
+											labelId="simple-select-label-origin"
+											id="simple-select-medium"
+											value={origin}
+											label="Origin"
+											onChange={(event: SelectChangeEvent) => setOrigin(event.target.value)}
+											autoWidth
+											size='medium'
+										>
+											{
+												originOptions.map((option, index) => (
+													<MenuItem key={index} value={option.value}>
+														{option.label}
+													</MenuItem>
+												))
+											}
+										</Select>
+									</FormControl>
 					
-				</Toolbar>
+									<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
+										<InputLabel id="simple-select-label-role">Destination</InputLabel>
+										<Select
+											labelId="simple-select-label-role"
+											id="simple-select-medium"
+											value={destination}
+											label="Destination"
+											onChange={(event: SelectChangeEvent) => setDestination(event.target.value)}
+											autoWidth
+											size='medium'
+										>
+											{destinationOptions.map((option, index) => (
+												<MenuItem key={index} value={option.value}>
+													{option.label}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+
+									<FormControl sx={{ m: 1, minWidth: 200 }} size="medium">
+										<InputLabel id="simple-select-label-role">Assignment</InputLabel>
+										<Select
+											labelId="simple-select-label-role"
+											id="simple-select-medium"
+											value={isAssigned}
+											label="Assignment"
+											onChange={(event: SelectChangeEvent) => setIsAssigned(event.target.value)}
+											autoWidth
+											size='medium'
+										>
+											{
+												assignedOptions.map((option, index) => (
+													<MenuItem key={index} value={option.value}>
+														{option.label}
+													</MenuItem>
+												))
+											}
+										</Select>
+									</FormControl>
+								</div>
+
+								<div className={schedulesTableStyles.bottomRow}>
+									<LocalizationProvider dateAdapter={AdapterDayjs}>
+										<DatePicker
+											label="Departure Date"
+											value={startDate}
+											onChange={(newValue) => setStartDate(newValue)}
+										/>
+
+										<DatePicker
+											label="Arrival Date"
+											value={endDate}
+											onChange={(newValue) => setEndDate(newValue)}
+										/>
+									</LocalizationProvider>
+								</div>
+							</div>
+
+							<div className={schedulesTableStyles.buttonDiv}>
+								<Button variant='contained' disabled={false} onClick={handleScheduleSelections}>{'Apply'}</Button>
+								<IconButton onClick={handleRefreshSelections} sx={{ ml: 'auto' }}>
+									<RefreshIcon />
+								</IconButton>
+							</div>
+						</Toolbar>
+					)
+				}
 
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
@@ -375,7 +406,16 @@ const SchedulesTable = () => {
 														(row.pilot !== null )
 															? `${row.pilot.first_name} ${row.pilot.last_name}` 
 															: (
-																<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
+																<>
+																	{
+																		(role === 'admin') ? (
+																			<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
+																		) : (
+																			'TBD'
+																		)
+																	}
+																</>
+																
 															)
 													}
 												</TableCell>
@@ -384,7 +424,15 @@ const SchedulesTable = () => {
 														(row.coPilot !== null)
 															? `${row.coPilot.first_name} ${row.coPilot.last_name}` 
 															: (
-																<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
+																<>
+																	{
+																		(role === 'admin') ? (
+																			<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
+																		) : (
+																			'TBD'
+																		)
+																	}
+																</>
 															)
 													}
 												</TableCell>
@@ -427,13 +475,17 @@ const SchedulesTable = () => {
 				</TableContainer>
 			</Box>
 			
-			<PilotListModal 
-				isOpen={isPilotListModalOpen} 
-				setIsOpen={setIsPilotListModalOpen} 
-				scheduleId={selectedScheduleId}
-				assignType={assignPilotType}
-				setAssignType={setPilotAssignType}
-			/>
+			{
+				role === 'admin' && (
+					<PilotListModal 
+						isOpen={isPilotListModalOpen} 
+						setIsOpen={setIsPilotListModalOpen} 
+						scheduleId={selectedScheduleId}
+						assignType={assignPilotType}
+						setAssignType={setPilotAssignType}
+					/>
+				)
+			}
 		</>
 	);
 

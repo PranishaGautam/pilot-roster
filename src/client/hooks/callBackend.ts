@@ -16,8 +16,6 @@ import {
 	PilotResponse,
 } from '../models/response-interface';
 
-import { useAuth } from '../context/AuthContext';
-
 // Base URL for the backend API
 const BASE_URL = 'http://localhost:5000/api';
 
@@ -52,6 +50,7 @@ interface useBackendActionsReturn {
 	getUserDetailById: (userId: string, token: string, trackingArea: string) => Promise<UserDetails>;
 	getAllUsers: (trackingArea: string, token: string) => Promise<Array<UserDetails>>;
 	getFlightDetails: (trackingArea: string, token: string, queryParams?: FlightDetailQueryParams) => Promise<Array<FlightDetails>>;
+	getFlightDetailsByPilotId: (trackingArea: string, token: string, pilotId: string, queryParams?: FlightDetailQueryParams) => Promise<Array<FlightDetails>>;
 	getAllPilots: (trackingArea: string, token: string, queryParams?: PilotDetailQueryParams) => Promise<Array<PilotResponse>>;
 	getPilotById: (trackingArea: string, token: string, userId: string) => Promise<PilotResponse>;
 	assignPilotToFlight: (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => Promise<void>;
@@ -153,9 +152,23 @@ export function useBackendActions(): useBackendActionsReturn {
 		try {
 			const client = apiClientWithAuth(token); // Create an authenticated client
 			const response = await trackPromise(client.get(`/flights`, { params: queryParams }), trackingArea);
-			// const response = await trackPromise(client.get(`/flights`), trackingArea);
 			if (response.status !== 200) {
 				console.log('Failed to fetch flight details', response.status);
+				throw new Error('Failed to fetch flight details');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const getFlightDetailsByPilotId = useCallback(async (trackingArea: string, token: string, pilotId: string, queryParams?: FlightDetailQueryParams) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/flights/${pilotId}`, { params: queryParams }), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch flight details for pilot', response.status);
 				throw new Error('Failed to fetch flight details');
 			}
 			return response.data;
@@ -214,6 +227,7 @@ export function useBackendActions(): useBackendActionsReturn {
 		getUserDetailById,
 		getAllUsers,
 		getFlightDetails,
+		getFlightDetailsByPilotId,
 		getAllPilots,
 		getPilotById,
 		assignPilotToFlight,

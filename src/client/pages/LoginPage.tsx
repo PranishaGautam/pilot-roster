@@ -193,11 +193,11 @@ const LoginPage = () => {
 
 			{/* RIGHT PANEL: Icon */}
 			<div className={loginstyles.rightPanel}>
-				<img 
+				{/* <img 
 					src={planeImage} 
 					alt="Login Image" 
 					className={loginstyles.image}
-				/>
+				/> */}
 			</div>
 		</div>
 	);
