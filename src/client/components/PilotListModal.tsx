@@ -8,7 +8,8 @@ import {
     ListItem,
     ListItemText,
     ListItemButton,
-    IconButton
+    IconButton,
+    CircularProgress
 } from '@mui/material';
 
 import Spinner from './Spinner';
@@ -72,7 +73,6 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
         if (token) {
             getAllPilots('pilot-area', token)
                 .then((data) => {
-                    // successToast('Pilots fetched successfully!');
                     console.log('Fetched pilots:', data);
                     setPilotList(data);
                 })
@@ -112,10 +112,7 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
                 <List>
                     {
                         isFetchingPilotList ? (
-                            <Spinner
-                                color='primary'
-                                size={60}
-					        />
+                            <CircularProgress color={'primary'} />
                         ) : (
                             <>
                                 {

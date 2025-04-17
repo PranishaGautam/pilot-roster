@@ -33,40 +33,25 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import PilotListModal from './PilotListModal';
+import Spinner from './Spinner';
 
 import schedulesTableStyles from '../../styles/schedulesTable.module.css';
-import { useBackendActions } from '../hooks/callBackend';
+
 import isLoading from '../hooks/isLoading';
+import { useBackendActions } from '../hooks/callBackend';
 import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
-import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
+
 import { FlightDetailQueryParams } from '../models/requests-interface';
-import Spinner from './Spinner';
-import { FlightDetails, PilotDetail, PilotResponse } from '../models/response-interface';
+import { FlightDetails } from '../models/response-interface';
+import { ScheduleTableData } from '../models/schedule-interface';
+import { TablePaginationActionsProps } from '../models/table-pagination-interface';
 
-interface ScheduleTableData {
-	scheduleId: number;
-	flightNumber: string;
-	origin: string;
-	destination: string;
-	departureTime: string;
-	arrivalTime: string;
-	status: string;
-	pilot: PilotDetail | null;
-	coPilot: PilotDetail | null;
-}
+import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
 
-interface TablePaginationActionsProps {
-	count: number;
-	page: number;
-	rowsPerPage: number;
-	onPageChange: (
-		event: React.MouseEvent<HTMLButtonElement>,
-		newPage: number,
-	) => void;
-}
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
 	const theme = useTheme();
@@ -124,13 +109,12 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 	);
 }
 
-
 const SchedulesTable = () => {
 
-	const { token, role } = useAuth();
+	const { token } = useAuth();
 
-	const { getFlightDetails, assignPilotToFlight } = useBackendActions();
-	const { successToast, errorToast } = useToast();
+	const { getFlightDetails } = useBackendActions();
+	const { errorToast } = useToast();
 
 	const [page, setPage] = React.useState(0);
   	const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -144,8 +128,8 @@ const SchedulesTable = () => {
 	const [origin, setOrigin] = useState('');
 	const [destination, setDestination] = useState('');
 	const [isAssigned, setIsAssigned] = useState('');
-	const [startDate, setStartDate] = useState<Dayjs | null>(dayjs().startOf('day'));
-	const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().add(1, 'day').startOf('day'));
+	const [startDate, setStartDate] = useState<Dayjs | null>(null); // If needed to add a particular date, for the day , replace null with dayjs().startOf('day')
+	const [endDate, setEndDate] = useState<Dayjs | null>(null); // If needed to add a particular date, for the day , replace null with dayjs().add(1, 'day').startOf('day')
 
 	const getFlightDetailsData = async () => {
 
@@ -163,6 +147,7 @@ const SchedulesTable = () => {
 			.then((response) => {
 				if (response.length === 0) {
 					errorToast('No schedules found for the selected criteria.');
+					setScheduleData([]);
 				} else {
 					const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
 
@@ -239,13 +224,13 @@ const SchedulesTable = () => {
 
 	return (
 		<>
-			{
+			{/* {
 				isFetchingData && 
 					<Spinner
 						color='primary'
 						size={60}
 					/>
-			}
+			} */}
 			<Box>
 				<Toolbar className={schedulesTableStyles.toolbarStyles}>
 					<div className={schedulesTableStyles.selections}>
@@ -337,6 +322,7 @@ const SchedulesTable = () => {
 					</div>
 					
 				</Toolbar>
+
 				<TableContainer component={Paper}>
 					<Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
 						<TableHead>
@@ -352,65 +338,77 @@ const SchedulesTable = () => {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{
-								(scheduleData && scheduleData?.length > 0) ? (
-									((rowsPerPage > 0) ? scheduleData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : scheduleData)
-									.map((row, index) => (
-										<TableRow key={index}>
-											<TableCell component="th" scope="row">
-												{row.flightNumber}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{row.origin}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{row.destination}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{moment(row.departureTime).format('YYYY-MM-DD HH:mm:ss')}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{moment(row.arrivalTime).format('YYYY-MM-DD HH:mm:ss')}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{row.status}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{
-													(row.pilot !== null )
-														? `${row.pilot.first_name} ${row.pilot.last_name}` 
-														: (
-															<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
-														)
-												}
-											</TableCell>
-											<TableCell style={{ width: 160 }} align="left">
-												{
-													(row.coPilot !== null)
-														? `${row.coPilot.first_name} ${row.coPilot.last_name}` 
-														: (
-															<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
-														)
-												}
+						{
+							isFetchingData ? (
+								<TableRow>
+									<TableCell colSpan={9} align="center">
+										<CircularProgress color={'primary'} />
+									</TableCell>
+								</TableRow>
+							) : (
+								<>
+									{	
+									(scheduleData && scheduleData?.length > 0) ? (
+										((rowsPerPage > 0) ? scheduleData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : scheduleData)
+										.map((row, index) => (
+											<TableRow key={index}>
+												<TableCell component="th" scope="row">
+													{row.flightNumber}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{row.origin}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{row.destination}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{moment(row.departureTime).format('YYYY-MM-DD HH:mm:ss')}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{moment(row.arrivalTime).format('YYYY-MM-DD HH:mm:ss')}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{row.status}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{
+														(row.pilot !== null )
+															? `${row.pilot.first_name} ${row.pilot.last_name}` 
+															: (
+																<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
+															)
+													}
+												</TableCell>
+												<TableCell style={{ width: 160 }} align="left">
+													{
+														(row.coPilot !== null)
+															? `${row.coPilot.first_name} ${row.coPilot.last_name}` 
+															: (
+																<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
+															)
+													}
+												</TableCell>
+											</TableRow>
+											)
+										)
+									) : (
+										<TableRow>
+											<TableCell colSpan={8} align="center">
+												No schedules found.
 											</TableCell>
 										</TableRow>
-										)
 									)
-								) : (
-									<TableRow>
-										<TableCell colSpan={8} align="center">
-											No schedules found.
-										</TableCell>
-									</TableRow>
-								)
-							}
-							{
-								(emptyRows > 0) && (
-									<TableRow style={{ height: 53 * emptyRows }}>
-									<TableCell colSpan={6} />
-									</TableRow>
-								)
-							}
+									}
+									{
+										(emptyRows > 0) && (
+											<TableRow style={{ height: 53 * emptyRows }}>
+												<TableCell colSpan={6} />
+											</TableRow>
+										)
+									}
+								</>
+							)
+						}
 						</TableBody>
 						<TableFooter>
 							<TableRow>

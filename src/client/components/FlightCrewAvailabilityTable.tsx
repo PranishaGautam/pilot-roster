@@ -19,6 +19,7 @@ import {
     SelectChangeEvent,
     IconButton,
     Button,
+    CircularProgress,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
@@ -262,10 +263,11 @@ const FlightCrewAvailabilityTable = () => {
                     <TableBody>
                         {
                             isFetchingPilotList ? (
-                                <Spinner
-                                    color='primary'
-                                    size={60}
-                                />
+                                <TableRow>
+                                    <TableCell colSpan={9} align="center">
+                                        <CircularProgress color={'primary'} />
+                                    </TableCell>
+                                </TableRow>
                             ) : (
                                 <>
                                     {
@@ -282,7 +284,7 @@ const FlightCrewAvailabilityTable = () => {
                                                         <TableCell>{pilot.pilot_id}</TableCell>
                                                         <TableCell>{`${_.capitalize(pilot.first_name)} ${_.capitalize(pilot.last_name)}`}</TableCell>
                                                         <TableCell>{_.startCase(_.toLower(pilot.role))}</TableCell>
-                                                        <TableCell>{pilot.hours_flown} hrs</TableCell>
+                                                        <TableCell>{pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}</TableCell>
                                                         <TableCell>{'-'}</TableCell>
                                                     </TableRow>
                                                 ))}
