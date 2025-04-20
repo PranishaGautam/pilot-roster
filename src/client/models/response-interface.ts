@@ -11,6 +11,8 @@ export interface LoginPayload {
 export interface LoginResponse {
     token: string;
     role: string;
+    pilot_id?: string;
+    user_id?: string;
 }
 
 export interface LoginError {

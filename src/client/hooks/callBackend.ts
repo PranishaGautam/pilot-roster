@@ -9,8 +9,8 @@ import {
 } from '../models/requests-interface';
 
 import { 
-	LoginPayload, LoginResponse, LoginError,
-	RegisterPayload, RegisterResponse, 
+	LoginResponse, LoginError,
+	RegisterResponse, 
 	UserDetails,
 	FlightDetails,
 	PilotResponse,
@@ -54,6 +54,9 @@ interface useBackendActionsReturn {
 	getAllPilots: (trackingArea: string, token: string, queryParams?: PilotDetailQueryParams) => Promise<Array<PilotResponse>>;
 	getPilotById: (trackingArea: string, token: string, userId: string) => Promise<PilotResponse>;
 	assignPilotToFlight: (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => Promise<void>;
+	leaveRequest: (trackingArea: string, token: string, body: any) => Promise<void>;
+	approveLeaveRequest: (trackingArea: string, token: string, requestId: string, status: string) => Promise<void>;
+	getAllLeaveRequests: (trackingArea: string, token: string) => Promise<Array<any>>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -221,6 +224,49 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const getAllLeaveRequests = useCallback(async (trackingArea: string, token: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/pilotRequests`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch all leave requests', response.status);
+				throw new Error('Failed to fetch all leave requests');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const leaveRequest = useCallback(async (trackingArea: string, token: string, body: any) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.post(`/pilotRequests/requestLeave`, body), trackingArea);
+			if (response.status !== 201) {
+				console.log('Failed to submit leave request', response.status);
+				throw new Error('Failed to submit leave request');
+			}
+			return response.data;
+		} catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const approveLeaveRequest = useCallback(async (trackingArea: string, token: string, requestId: string, status: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.put(`/pilotRequests/update/${requestId}`), trackingArea);
+			if (response.status !== 201) {
+				console.log(`Failed to update leave request for requestId: ${requestId}`, response.status);
+				throw new Error('Failed to approve leave request');
+			}
+			return response.data;
+		} catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	return {
 		login,
 		register,
@@ -231,5 +277,8 @@ export function useBackendActions(): useBackendActionsReturn {
 		getAllPilots,
 		getPilotById,
 		assignPilotToFlight,
+		leaveRequest,
+		approveLeaveRequest,
+		getAllLeaveRequests,
 	}
 }

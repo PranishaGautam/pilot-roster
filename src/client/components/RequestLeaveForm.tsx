@@ -1,52 +1,103 @@
 import React, { useState } from 'react';
+import moment from 'moment';
+
+import { useAuth } from '../context/AuthContext';
+import { useBackendActions } from '../hooks/callBackend';
+import { useToast } from '../hooks/useToast';
+import { useNavigate } from 'react-router-dom';
+import { RequestLeavePayload } from '../models/requests-interface';
+import isLoading from '../hooks/isLoading';
+import Spinner from './Spinner';
 
 const RequestLeaveForm: React.FC = () => {
-  const [form, setForm] = useState({
-    pilotName: '',
-    pilotId: '',
-    leaveType: 'Annual',
-    startDate: '',
-    endDate: '',
-    reason: '',
-  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
+	const navigate = useNavigate();
+	
+	const { token, role, pilotId } = useAuth();
+	const { successToast, errorToast } = useToast();
+	const { leaveRequest } = useBackendActions();
+  
+	const [form, setForm] = useState({
+		pilotName: '',
+		pilotId: '',
+		leaveType: 'Annual',
+		startDate: '',
+		endDate: '',
+		reason: '',
+	});
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Leave request submitted:', form);
-    alert('Leave request submitted successfully!');
-  };
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+		const { name, value } = e.target;
+		// Handle other input changes
+		setForm(prev => ({ ...prev, [name]: value }));
+	};
 
-  return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Request Leave</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input type="text" name="pilotName" placeholder="Pilot Name" value={form.pilotName} onChange={handleChange} style={styles.input} required />
-        <input type="text" name="pilotId" placeholder="Pilot ID" value={form.pilotId} onChange={handleChange} style={styles.input} required />
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
 
-        <label style={styles.label}>Leave Type:</label>
-        <select name="leaveType" value={form.leaveType} onChange={handleChange} style={styles.input}>
-          <option value="Annual">Annual Leave</option>
-          <option value="Sick">Sick Leave</option>
-          <option value="Emergency">Emergency Leave</option>
-        </select>
+		if (!pilotId || !token) {
+			errorToast('Pilot ID or token is missing. Please log in again.');
+			navigate('/');
+			return;
+		}
 
-        <label style={styles.label}>From Date:</label>
-        <input type="date" name="startDate" value={form.startDate} onChange={handleChange} style={styles.input} required />
+		const requestPayload: RequestLeavePayload = {
+			requestor_id: pilotId,
+			request_type: form.leaveType,
+			request_description: form.reason,
+			start_time: moment(form.startDate).toISOString(),
+			end_time: moment(form.startDate).toISOString(),
+			status: 'PENDING',
+		}
 
-        <label style={styles.label}>To Date:</label>
-        <input type="date" name="endDate" value={form.endDate} onChange={handleChange} style={styles.input} required />
 
-        <textarea name="reason" placeholder="Reason for Leave" value={form.reason} onChange={handleChange} style={styles.textarea} required />
+		leaveRequest('submit-leave-request', token, role)
+			.then(() => {
+				successToast('Leave request submitted successfully!');
+				navigate('/pilot');
+			})
+			.catch((error) => {
+				errorToast(`Error submitting leave request: ${error.message}`);
+			});
+	};
 
-        <button type="submit" style={styles.button}>Submit Request</button>
-      </form>
-    </div>
-  );
+	const isSubmitting = isLoading('submit-leave-request');
+
+	return (
+		<>
+			{
+				isSubmitting && 
+					<Spinner
+						color='primary'
+						size={60}
+					/>
+			}
+			<div style={styles.container}>
+			<h2 style={styles.title}>Request Leave</h2>
+			<form onSubmit={handleSubmit} style={styles.form}>
+				<input type="text" name="pilotName" placeholder="Pilot Name" value={form.pilotName} onChange={handleChange} style={styles.input} required />
+				<input type="text" name="pilotId" placeholder="Pilot ID" value={form.pilotId} onChange={handleChange} style={styles.input} required />
+
+				<label style={styles.label}>Leave Type:</label>
+				<select name="leaveType" value={form.leaveType} onChange={handleChange} style={styles.input}>
+				<option value="Leave">Annual Leave</option>
+				<option value="Leave">Sick Leave</option>
+				<option value="Leave">Emergency Leave</option>
+				</select>
+
+				<label style={styles.label}>From Date:</label>
+				<input type="date" name="startDate" value={form.startDate} onChange={handleChange} style={styles.input} required />
+
+				<label style={styles.label}>To Date:</label>
+				<input type="date" name="endDate" value={form.endDate} onChange={handleChange} style={styles.input} required />
+
+				<textarea name="reason" placeholder="Reason for Leave" value={form.reason} onChange={handleChange} style={styles.textarea} required />
+
+				<button type="submit" style={styles.button} onClick={handleSubmit}>Submit Request</button>
+			</form>
+			</div>
+		</>
+	);
 };
 
 const styles: { [key: string]: React.CSSProperties } = {

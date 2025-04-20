@@ -16,6 +16,7 @@ import { useToast } from '../hooks/useToast';
 
 import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
 import { LoginResponse } from '../models/response-interface';
+import { set } from 'lodash';
 
 const LoginPage = () => {
 
@@ -24,7 +25,7 @@ const LoginPage = () => {
 	const { successToast, errorToast } = useToast();
 
 	// Access the authentication context
-	const { setToken, setRole } = useAuth();
+	const { setToken, setRole, setPilotId, setUserId } = useAuth();
 
 	// State variables for email and password
 	const [email, setEmail] = useState('');
@@ -61,6 +62,12 @@ const LoginPage = () => {
 				const loginResponseData = loginResponse as LoginResponse;
 				setToken(loginResponseData.token); // Set the token in the context
 				setRole(loginResponseData.role); // Set the role in the context
+				if (loginResponseData.role === 'pilot') {
+					setPilotId(loginResponseData.pilot_id); // Set the pilot ID in the context
+				} else if (loginResponseData.role === 'admin') {
+					setPilotId(null); // Set the pilot ID to null for admin
+					setUserId(loginResponseData.user_id); // Set the user ID in the context
+				}
 				
 				if (loginResponseData.role === 'admin') {
 					successToast('Login successful!');

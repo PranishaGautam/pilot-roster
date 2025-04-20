@@ -110,7 +110,7 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 
 const SchedulesTable = () => {
 
-	const { token, role } = useAuth();
+	const { token, role, pilotId } = useAuth();
 
 	const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
 	const { errorToast } = useToast();
@@ -175,8 +175,12 @@ const SchedulesTable = () => {
 					setScheduleData([]);
 				});
 			} else if (role === 'pilot') {
+				if (!pilotId) {
+					errorToast('Pilot ID is missing. Please log in again.');
+					return;
+				}
 				// Call the backend API with the selected parameters
-				getFlightDetailsByPilotId('schedules-area', token, '3')
+				getFlightDetailsByPilotId('schedules-area', token, pilotId)
 				.then((response) => {
 					if (response.length === 0) {
 						errorToast('No schedules found for the pilot');
