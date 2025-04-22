@@ -4,14 +4,15 @@
     background-color: #f8f9fa;
 }
 
-.sidebar {
+/* .sidebar {
     width: 220px;
     background-color: #1f2937;
     color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
+} */
+
 .sidebarHeader {
     padding: 1rem;
 }
@@ -69,8 +70,10 @@
 }
 .topBar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    /* justify-content: space-between; */
+    justify-content: end;
+    /* align-items: center; */
+    /* align-items: end; */
 }
 
 .pageTitle {
@@ -93,9 +96,10 @@
     align-items: center;
 }
 
-.activitySection {
+/* .activitySection {
     margin-bottom: 2rem;
-}
+} */
+
 .sectionTitle {
     font-size: 1.2rem;
     margin-bottom: 0.75rem;
@@ -221,4 +225,97 @@
 .teamStatusOffline {
     font-size: 0.8rem;
     color: gray;
+}
+
+.app {
+    display: flex;
+    font-family: Arial, sans-serif;
+}
+  
+.mainContent {
+    flex: 1;
+    padding: 20px;
+    background-color: #f4f6f8;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #101928;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 15px 0;
+    cursor: pointer;
+}
+  
+.sidebar li.active {
+    font-weight: bold;
+    color: #00d1b2;
+}
+
+.overviewMidDiv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.overviewMidDiv > div {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 20rem;
+}
+
+.pilotStatsDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pilotStat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.labelDiv {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.recentActivitiesDiv {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.requestSummary {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.requestDetails {
+    display: flex;
+    flex-direction: column;
 }

@@ -5,7 +5,8 @@ import { useCallback } from 'react';
 import { 
 	AssignPilotRequestBody,
 	FlightDetailQueryParams, 
-	PilotDetailQueryParams
+	PilotDetailQueryParams,
+	UpdatePilotRequestPayload
 } from '../models/requests-interface';
 
 import { 
@@ -14,6 +15,7 @@ import {
 	UserDetails,
 	FlightDetails,
 	PilotResponse,
+	PilotRequests,
 } from '../models/response-interface';
 
 // Base URL for the backend API
@@ -55,8 +57,8 @@ interface useBackendActionsReturn {
 	getPilotById: (trackingArea: string, token: string, userId: string) => Promise<PilotResponse>;
 	assignPilotToFlight: (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => Promise<void>;
 	leaveRequest: (trackingArea: string, token: string, body: any) => Promise<void>;
-	approveLeaveRequest: (trackingArea: string, token: string, requestId: string, status: string) => Promise<void>;
-	getAllLeaveRequests: (trackingArea: string, token: string) => Promise<Array<any>>;
+	updateLeaveRequest: (trackingArea: string, token: string, requestId: number, body: UpdatePilotRequestPayload) => Promise<void>;
+	getAllLeaveRequests: (trackingArea: string, token: string) => Promise<Array<PilotRequests>>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -253,10 +255,10 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
-	const approveLeaveRequest = useCallback(async (trackingArea: string, token: string, requestId: string, status: string) => {
+	const updateLeaveRequest = useCallback(async (trackingArea: string, token: string, requestId: number, body: UpdatePilotRequestPayload) => {
 		try {
 			const client = apiClientWithAuth(token); // Create an authenticated client
-			const response = await trackPromise(client.put(`/pilotRequests/update/${requestId}`), trackingArea);
+			const response = await trackPromise(client.put(`/pilotRequests/update/${requestId}`, body), trackingArea);
 			if (response.status !== 201) {
 				console.log(`Failed to update leave request for requestId: ${requestId}`, response.status);
 				throw new Error('Failed to approve leave request');
@@ -278,7 +280,7 @@ export function useBackendActions(): useBackendActionsReturn {
 		getPilotById,
 		assignPilotToFlight,
 		leaveRequest,
-		approveLeaveRequest,
+		updateLeaveRequest,
 		getAllLeaveRequests,
 	}
 }

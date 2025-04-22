@@ -492,7 +492,6 @@ const SchedulesTable = () => {
 			}
 		</>
 	);
-
 }
 
 export default SchedulesTable;

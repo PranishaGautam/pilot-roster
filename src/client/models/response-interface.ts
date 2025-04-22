@@ -81,4 +81,22 @@ export interface PilotResponse {
     email: string;
     start_date: string;
     end_date: string;
+    status: string;
+}
+
+export interface PilotRequests {
+    request_id: number;
+    requestor_id: number;
+    request_type: string; // e.g., "leave", "swap"
+    request_description: string;
+    status: string; // e.g., "pending", "approved", "rejected"
+    start_time: string; // Start time of the request
+    end_time: string; // End time of the request
+    approver_id: number | null; // ID of the approver, if applicable
+    approval_time: string | null; // Time of approval, if applicable
+    first_name: string;
+    last_name: string;
+    email: string;
+    start_date: Date;
+    end_date: Date;
 }

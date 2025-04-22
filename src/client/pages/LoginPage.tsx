@@ -16,7 +16,6 @@ import { useToast } from '../hooks/useToast';
 
 import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
 import { LoginResponse } from '../models/response-interface';
-import { set } from 'lodash';
 
 const LoginPage = () => {
 

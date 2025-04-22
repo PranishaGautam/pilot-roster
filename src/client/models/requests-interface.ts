@@ -32,3 +32,9 @@ export interface UpdateRequestPayload {
     status: string,
     approval_time: string
 }
+
+export interface UpdatePilotRequestPayload {
+    approver_id: number,
+    status: string,
+    approval_time: string,
+}

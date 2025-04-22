@@ -256,7 +256,7 @@ const FlightCrewAvailabilityTable = () => {
                             <TableCell>Pilot ID</TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>Role</TableCell>
-                            <TableCell>Hours Flown (Past 5 Days)</TableCell>
+                            <TableCell>Hours Flown</TableCell>
                             <TableCell>Availability</TableCell>
                         </TableRow>
                     </TableHead>
@@ -285,7 +285,7 @@ const FlightCrewAvailabilityTable = () => {
                                                         <TableCell>{`${_.capitalize(pilot.first_name)} ${_.capitalize(pilot.last_name)}`}</TableCell>
                                                         <TableCell>{_.startCase(_.toLower(pilot.role))}</TableCell>
                                                         <TableCell>{pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}</TableCell>
-                                                        <TableCell>{'-'}</TableCell>
+                                                        <TableCell>{pilot.status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </>
