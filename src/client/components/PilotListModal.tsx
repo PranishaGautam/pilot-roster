@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import produce from 'immer';
+
 import {
     Modal,
     Box,
@@ -27,9 +29,10 @@ interface Props {
     scheduleId: string | null;
     assignType: string | null;
     setAssignType: React.Dispatch<React.SetStateAction<string | null>>;
+    setNeedsTableRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignType }: Props) => {
+const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignType, setNeedsTableRefresh }: Props) => {
 
     const { token } = useAuth();
     
@@ -41,6 +44,9 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
 
     // Handle assign action
     const handleAssign = () => {
+
+        setNeedsTableRefresh(false);
+
         if (!selectedPilot) {
             toast.error('Please select a pilot to assign!');
         }
@@ -61,6 +67,7 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
                 successToast('Pilot assigned successfully!');
                 setIsOpen(false);
                 setAssignType(null);
+                setNeedsTableRefresh(true);
             })
             .catch((error) => {
                 console.log(error);

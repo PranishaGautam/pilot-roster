@@ -124,6 +124,8 @@ const SchedulesTable = () => {
 	const [assignPilotType, setPilotAssignType] = useState<string | null>(null);
 	const [isPilotListModalOpen, setIsPilotListModalOpen] = useState(false);
 
+	const [needsTableRefresh, setNeedsTableRefresh] = useState<boolean>(false);
+
 	const [origin, setOrigin] = useState('');
 	const [destination, setDestination] = useState('');
 	const [isAssigned, setIsAssigned] = useState('');
@@ -258,6 +260,13 @@ const SchedulesTable = () => {
 			getFlightDetailsData();
 		}
 	}, []);
+
+	useEffect(() => {
+		// Fetch flight details when the token changes
+		if (token && needsTableRefresh) {
+			getFlightDetailsData();
+		}
+	}, [needsTableRefresh]);
 
 	const isFetchingData = isLoading('schedules-area');
 
@@ -480,13 +489,14 @@ const SchedulesTable = () => {
 			</Box>
 			
 			{
-				role === 'admin' && (
+				(role === 'admin') && (
 					<PilotListModal 
 						isOpen={isPilotListModalOpen} 
 						setIsOpen={setIsPilotListModalOpen} 
 						scheduleId={selectedScheduleId}
 						assignType={assignPilotType}
 						setAssignType={setPilotAssignType}
+						setNeedsTableRefresh={setNeedsTableRefresh}
 					/>
 				)
 			}

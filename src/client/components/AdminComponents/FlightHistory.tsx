@@ -23,9 +23,18 @@ import {
     Button,
 } from '@mui/material';
 
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+
+import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 
 import { useTheme } from '@mui/material/styles';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
@@ -34,10 +43,13 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
+
+import '@fontsource/roboto/300.css';
 
 import Spinner from '../Spinner';
 
-import schedulesTableStyles from '../../../styles/schedulesTable.module.css';
+import flightHistoryStyles from '../../../styles/flightHistory.module.css';
 
 import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
@@ -51,61 +63,7 @@ import { TablePaginationActionsProps } from '../../models/table-pagination-inter
 
 import { originOptions, destinationOptions, assignedOptions } from '../../utils/dropdownValues';
 
-function TablePaginationActions(props: TablePaginationActionsProps) {
-    const theme = useTheme();
-    const { count, page, rowsPerPage, onPageChange } = props;
 
-    const handleFirstPageButtonClick = (
-        event: React.MouseEvent<HTMLButtonElement>,
-    ) => {
-        onPageChange(event, 0);
-    };
-
-    const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        onPageChange(event, page - 1);
-    };
-
-    const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        onPageChange(event, page + 1);
-    };
-
-    const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-    };
-
-    return (
-        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-            <IconButton
-                onClick={handleFirstPageButtonClick}
-                disabled={page === 0}
-                aria-label="first page"
-            >
-                {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-            </IconButton>
-            <IconButton
-                onClick={handleBackButtonClick}
-                disabled={page === 0}
-                aria-label="previous page"
-            >
-                {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-            </IconButton>
-            <IconButton
-                onClick={handleNextButtonClick}
-                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                aria-label="next page"
-            >
-                {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-            </IconButton>
-            <IconButton
-                onClick={handleLastPageButtonClick}
-                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                aria-label="last page"
-            >
-                {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-            </IconButton>
-        </Box>
-    );
-}
 
 const FlightHistory = () => {
 
@@ -114,35 +72,14 @@ const FlightHistory = () => {
     const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
     const { errorToast } = useToast();
 
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-
     const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
 
-    const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
-    const [assignPilotType, setPilotAssignType] = useState<string | null>(null);
-    const [isPilotListModalOpen, setIsPilotListModalOpen] = useState(false);
-
-    const [origin, setOrigin] = useState('');
-    const [destination, setDestination] = useState('');
-    const [isAssigned, setIsAssigned] = useState('');
-    const [startDate, setStartDate] = useState<Dayjs | null>(null); // If needed to add a particular date, for the day , replace null with dayjs().startOf('day')
-    const [endDate, setEndDate] = useState<Dayjs | null>(null); // If needed to add a particular date, for the day , replace null with dayjs().add(1, 'day').startOf('day')
-
     const getFlightDetailsData = async () => {
-
-        const params: FlightDetailQueryParams = {
-            assigned: isAssigned,
-            origin: origin,
-            destination: destination,
-            start_date: startDate ? `${startDate.toISOString().split('.')[0]}Z` : '',
-            end_date: endDate ? `${endDate.toISOString().split('.')[0]}Z` : '',
-        };
 
         if (token) {
             if (role === 'admin') {
                 // Call the backend API with the selected parameters
-                getFlightDetails('schedules-area', token, params)
+                getFlightDetails('schedules-area', token)
                 .then((response) => {
                     if (response.length === 0) {
                         errorToast('No schedules found for the selected criteria.');
@@ -216,41 +153,6 @@ const FlightHistory = () => {
         }
     }
 
-    // Handler to refresh selections
-    const handleRefreshSelections = () => {
-        setOrigin('');
-        setDestination('');
-        setIsAssigned('');
-        setStartDate(null);
-        setEndDate(null);
-        setPage(0);
-    }
-
-    // Handle schedule selections and fetch flight details
-    const handleScheduleSelections = () => {
-        getFlightDetailsData();
-        setPage(0);
-    }
-
-    //Handler to assign the pilot to the flight
-    const handlePilotAssignment = (flight: ScheduleTableData, assignType: string) => {
-        setSelectedScheduleId(flight.scheduleId.toString());
-        setPilotAssignType(assignType);
-        setIsPilotListModalOpen(true);
-    }
-
-    // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - scheduleData?.length) : 0;
-
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number,) => {
-        setPage(newPage);
-    };
-    
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
     useEffect(() => {
         // Fetch flight details when the component mounts or when the token changes
         if (token) {
@@ -262,7 +164,112 @@ const FlightHistory = () => {
 
     return (
         <div>
-            
+
+            {
+                isFetchingData && 
+                    <Spinner
+                        color='primary'
+                        size={60}
+                    />
+            }
+            <div className={flightHistoryStyles.flightContainer}>
+
+                <div className={flightHistoryStyles.containerTitle}>
+                    <h2 className={flightHistoryStyles.flightTitle}>Upcoming Flights</h2>
+                </div>
+
+                <Divider></Divider>
+
+                <div className={flightHistoryStyles.flightsDiv}>
+
+                    {
+                        scheduleData.length === 0 ? (
+                            <div className={flightHistoryStyles.noFlightDiv}>
+                                <Typography component="p" color={'textDisabled'} fontSize={16} fontWeight={400}>
+                                    {'No flight history available.'}
+                                </Typography>
+                            </div>
+                        ) : (
+                            <>
+                            {
+                                scheduleData.map((flight, index) => (
+                                    <Accordion defaultExpanded={false}>
+                                        <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls="panel3-content"
+                                            id="panel3-header"
+                                            className={flightHistoryStyles.flightSummary}
+                                        >
+                                            <div className={flightHistoryStyles.flightItem}>
+                                                <div className={flightHistoryStyles.flightInfo}>
+                                                    <div className={flightHistoryStyles.flightDetailsLeft}>
+                                                        <div className={flightHistoryStyles.flightIcon}>
+                                                            <AirplanemodeActiveIcon className={flightHistoryStyles.flightIcon} />
+                                                        </div>
+                                                        <div className={flightHistoryStyles.flightRouteDetail}>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={16} fontWeight={500}>
+                                                                {`Flight ${flight.flightNumber}`}
+                                                            </Typography>
+                                                            <Typography component="p" color={'textDisabled'} fontSize={14} fontWeight={400}>
+                                                                {`${flight.origin} → ${flight.destination}`}
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                    <div className={flightHistoryStyles.flightDetailsRight}>
+                                                        <Typography component="p" color={'textPrimary'} fontSize={16} fontWeight={500}>
+                                                            {moment(flight.departureTime).format('hh:mm A')}
+                                                        </Typography>
+                                                        <Typography component="p" color={'textDisabled'} fontSize={14} fontWeight={400}>
+                                                            {moment(flight.departureTime).format('MMM DD, YYYY')}
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <div className={flightHistoryStyles.flightDetails}>
+                                                <div className={flightHistoryStyles.flightDetailsOpenDiv}>
+                                                    <Typography component="h4" color={'textPrimary'} fontSize={16} fontWeight={500}>
+                                                        {'Flight Details'}
+                                                    </Typography>
+
+                                                    <Divider></Divider>
+
+                                                    <div className={flightHistoryStyles.flightDetailed}>
+                                                        <div className={flightHistoryStyles.flightSummary}>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                {`Flight Number: ${flight.flightNumber}`}
+                                                            </Typography>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                {`Departure: ${moment(flight.departureTime).format('hh:mm A')}`}
+                                                            </Typography>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                {`Arrival: ${moment(flight.arrivalTime).format('hh:mm A')}`}
+                                                            </Typography>
+                                                        </div>
+
+                                                        <div className={flightHistoryStyles.PilotDetails}>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                {`Pilot: ${flight?.pilot?.first_name} ${flight?.pilot?.last_name}`}
+                                                            </Typography>
+                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                {`Co-Pilot: ${flight?.coPilot?.first_name} ${flight?.coPilot?.last_name}`}
+                                                            </Typography>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                ))
+                            }
+                            </>
+                            
+                        )
+                    }
+                </div>
+            </div>
         </div>
     );
 }

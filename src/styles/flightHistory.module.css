@@ -1,0 +1,77 @@
+.flightContainer {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+.containerTitle {
+    padding: 1rem 0 0.5rem 2rem;
+}
+  
+.flightTitle {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.flightsDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+  
+.flightItem {
+    background-color: #F9FAFB;
+    border-radius: 8px;
+    width: 100%;
+}
+  
+.flightInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+  
+.flightDetailsLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.flightIcon svg {
+    background-color: #DBEAFE;
+    color: #2563EB;
+    border-radius: 0.5rem;
+    height: 2rem;
+    width: 2rem;
+    padding: 0.25rem;
+    transform: rotate(90deg);
+}
+
+.flightRouteDetail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.flightDetails {
+    font-weight: 600;
+    color: #333;
+}
+
+.flightDetailsRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+  
+.flightDetailed {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+  
