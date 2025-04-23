@@ -175,7 +175,7 @@ const FlightHistory = () => {
             <div className={flightHistoryStyles.flightContainer}>
 
                 <div className={flightHistoryStyles.containerTitle}>
-                    <h2 className={flightHistoryStyles.flightTitle}>Upcoming Flights</h2>
+                    <h2 className={flightHistoryStyles.flightTitle}>Flights History</h2>
                 </div>
 
                 <Divider></Divider>
