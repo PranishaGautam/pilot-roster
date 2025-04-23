@@ -77,77 +77,38 @@ const FlightHistory = () => {
     const getFlightDetailsData = async () => {
 
         if (token) {
-            if (role === 'admin') {
-                // Call the backend API with the selected parameters
-                getFlightDetails('schedules-area', token)
-                .then((response) => {
-                    if (response.length === 0) {
-                        errorToast('No schedules found for the selected criteria.');
-                        setScheduleData([]);
-                    } else {
-                        const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
-
-                            const assignedPilot = schedule?.pilots?.pilot ?? null;
-                            const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
-
-                            return {
-                                scheduleId: schedule.schedule.schedule_id,
-                                flightNumber: schedule.schedule.flight_number,
-                                origin: schedule.schedule.origin,
-                                destination: schedule.schedule.destination,
-                                departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
-                                arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
-                                status: schedule.schedule.status,
-                                pilot: assignedPilot ?? null,
-                                coPilot: assignedCoPilot ?? null
-                            }
-                        });
-                        setScheduleData(formattedSchedules);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error fetching flight details:', error);
-                    errorToast('Error fetching flight details. Please try again.');
+            // Call the backend API with the selected parameters
+            getFlightDetails('schedules-area', token)
+            .then((response) => {
+                if (response.length === 0) {
+                    errorToast('No schedules found for the selected criteria.');
                     setScheduleData([]);
-                });
-            } else if (role === 'pilot') {
-                if (!pilotId) {
-                    errorToast('Pilot ID is missing. Please log in again.');
-                    return;
+                } else {
+                    const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
+
+                        const assignedPilot = schedule?.pilots?.pilot ?? null;
+                        const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
+
+                        return {
+                            scheduleId: schedule.schedule.schedule_id,
+                            flightNumber: schedule.schedule.flight_number,
+                            origin: schedule.schedule.origin,
+                            destination: schedule.schedule.destination,
+                            departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
+                            arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
+                            status: schedule.schedule.status,
+                            pilot: assignedPilot ?? null,
+                            coPilot: assignedCoPilot ?? null
+                        }
+                    });
+                    setScheduleData(formattedSchedules);
                 }
-                // Call the backend API with the selected parameters
-                getFlightDetailsByPilotId('schedules-area', token, pilotId)
-                .then((response) => {
-                    if (response.length === 0) {
-                        errorToast('No schedules found for the pilot');
-                        setScheduleData([]);
-                    } else {
-                        const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
-
-                            const assignedPilot = schedule?.pilots?.pilot ?? null;
-                            const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
-
-                            return {
-                                scheduleId: schedule.schedule.schedule_id,
-                                flightNumber: schedule.schedule.flight_number,
-                                origin: schedule.schedule.origin,
-                                destination: schedule.schedule.destination,
-                                departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
-                                arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
-                                status: schedule.schedule.status,
-                                pilot: assignedPilot ?? null,
-                                coPilot: assignedCoPilot ?? null
-                            }
-                        });
-                        setScheduleData(formattedSchedules);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error fetching flight details:', error);
-                    errorToast('Error fetching flight details. Please try again.');
-                    setScheduleData([]);
-                });
-            }
+            })
+            .catch((error) => {
+                console.error('Error fetching flight details:', error);
+                errorToast('Error fetching flight details. Please try again.');
+                setScheduleData([]);
+            });
         } else {
             errorToast('Authentication token is missing. Please log in again.');
         }

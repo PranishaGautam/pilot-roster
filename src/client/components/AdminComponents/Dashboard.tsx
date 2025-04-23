@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Button from '@mui/material/Button';
 
+import { LineChart } from '@mui/x-charts/LineChart';
+
 import Spinner from '../Spinner';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
@@ -18,9 +20,10 @@ import DisplayCard from '../DisplayCard';
 import { useAuth } from '../../context/AuthContext';
 import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
-import { PilotResponse, PilotRequests } from '../../models/response-interface';
+import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
 import { useToast } from '../../hooks/useToast';
 import { UpdatePilotRequestPayload, UpdateRequestPayload } from '../../models/requests-interface';
+import { ScheduleTableData } from '../../models/schedule-interface';
 
 const Dashboard = () => {
     
@@ -56,10 +59,8 @@ const Dashboard = () => {
 	]
 
     const { token, userId } = useAuth();
-    console.log('User ID:', userId);
-    console.log('Token:', token);
 
-    const { getAllPilots, getAllLeaveRequests, updateLeaveRequest } = useBackendActions();
+    const { getAllPilots, getAllLeaveRequests, updateLeaveRequest, getFlightDetails } = useBackendActions();
 
     const { successToast, errorToast } = useToast();
 
@@ -80,6 +81,92 @@ const Dashboard = () => {
     const pendingRequests = useMemo(() => {
         return requests.filter(request => request.status.toLowerCase() === 'pending');
     },[requests]);
+
+    const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
+    
+    const getFlightDetailsData = async () => {
+
+        if (token) {
+            // Call the backend API with the selected parameters
+            getFlightDetails('schedules-area', token)
+            .then((response) => {
+                if (response.length === 0) {
+                    errorToast('No schedules found for the selected criteria.');
+                    setScheduleData([]);
+                } else {
+                    const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
+
+                        const assignedPilot = schedule?.pilots?.pilot ?? null;
+                        const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
+
+                        return {
+                            scheduleId: schedule.schedule.schedule_id,
+                            flightNumber: schedule.schedule.flight_number,
+                            origin: schedule.schedule.origin,
+                            destination: schedule.schedule.destination,
+                            departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
+                            arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
+                            status: schedule.schedule.status,
+                            pilot: assignedPilot ?? null,
+                            coPilot: assignedCoPilot ?? null
+                        }
+                    });
+                    setScheduleData(formattedSchedules);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching flight details:', error);
+                errorToast('Error fetching flight details. Please try again.');
+                setScheduleData([]);
+            });
+        } else {
+            errorToast('Authentication token is missing. Please log in again.');
+        }
+    }
+
+    const last7Days = [...Array(7)].map((_, i) => 
+        moment().subtract(i, 'days').toDate()
+    ).reverse();
+
+    console.log(`Last 7 days:`, last7Days);
+
+    const aggregatedFlightHours: Array<number> = useMemo(() => {
+        const dailyFlightHours: Record<string, number> = {};
+
+        // Loop through scheduleData to compute daily flight hours.
+        scheduleData.forEach((schedule) => {
+            // Convert departureTime & arrivalTime to Moment for calculations.
+            const departure = moment(schedule.departureTime, 'YYYY-MM-DD HH:mm:ss');
+            const arrival = moment(schedule.arrivalTime, 'YYYY-MM-DD HH:mm:ss');
+
+            // Check if the flight falls within the last 7 days.
+            const isWithinLast7Days = last7Days.some(day => {
+            const dayStart = moment(day).startOf('day');
+            const dayEnd = moment(day).endOf('day');
+            return departure.isBetween(dayStart, dayEnd, null, '[]') || arrival.isBetween(dayStart, dayEnd, null, '[]');
+            });
+
+            if (isWithinLast7Days) {
+                // Calculate flight duration in hours.
+                const flightDurationHours = arrival.diff(departure, 'hours');
+
+                // Format departure date as YYYY-MM-DD to group by day.
+                const dayKey = departure.format('YYYY-MM-DD');
+
+                // Add up the total flight hours.
+                if (!dailyFlightHours[dayKey]) {
+                    dailyFlightHours[dayKey] = 0;
+                }
+                dailyFlightHours[dayKey] += flightDurationHours;
+            }
+        });
+
+        // 3. Build the array of flight hours for each of the last 7 days.
+        const flightHoursData = last7Days.map(day => dailyFlightHours[moment(day).format('YYYY-MM-DD')] || 0);
+        return flightHoursData;
+    }, [scheduleData]);
+
+    console.log(`Aggregated flight hours:`, aggregatedFlightHours);
 
     const getPilots = () => {
         if (token) {
@@ -141,6 +228,7 @@ const Dashboard = () => {
     useEffect(() => {
         getPilots();
         getAllRequests();
+        getFlightDetailsData();
     }, []);
 
     const updatingLeaveRequest = isLoading('update-leave-request');
@@ -154,6 +242,7 @@ const Dashboard = () => {
                         size={60}
                     />
             }
+
             {/* ACTIVITY SECTION */}
             <section className={dashboardStyles.activitySection}>
                 <h2 className={dashboardStyles.sectionTitle}>Activity</h2>
@@ -174,7 +263,34 @@ const Dashboard = () => {
             <section className={dashboardStyles.overviewMidDiv}>
                 <div className={dashboardStyles.chartDiv}>
                     <h2 className={dashboardStyles.sectionTitle}>Flight Hours Distribution</h2>
-                    
+                    <div className={dashboardStyles.dsitributionChart}>
+                        <LineChart
+                            xAxis={[
+                                {
+                                    id: 'date',
+                                    label: 'Day of the Week (Past 7 days)', 
+                                    scaleType: 'point',
+                                    data: last7Days,
+                                    valueFormatter: (date) => `${moment(date).format('dddd')}` // Format to get day of the week
+                                }
+                            ]}
+                            yAxis={[
+                                {
+                                    id: 'flightHours',
+                                    label: 'Total Flight Hours',
+                                    scaleType: 'linear',
+                                }
+                            ]}
+                            series={[
+                                {
+                                    data: aggregatedFlightHours,
+                                    area: true,
+                                },
+                            ]}
+                            height={250}
+                            width={600}
+                        />
+                    </div>
                 </div>
 
                 <div className={dashboardStyles.pilotAvailabilityDiv}>
@@ -206,37 +322,35 @@ const Dashboard = () => {
                 <div className={dashboardStyles.activityDiv}>
                     {pendingRequests.length > 0 ? (
                         pendingRequests.map((request, index) => (
-                            <>
-                                <Accordion key={index} defaultExpanded={false}>
-                                    <AccordionSummary
-                                        expandIcon={<ExpandMoreIcon />}
-                                        aria-controls="panel3-content"
-                                        id="panel3-header"
-                                    >
-                                        <div className={dashboardStyles.requestSummary}>
-                                            <Typography component="span">{`${_.capitalize(request.first_name)} ${_.capitalize(request.last_name)}`}</Typography>
-                                            <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
-                                                <strong>Request Type:</strong> {request.request_type}
-                                            </Typography>
-                                        </div>
-                                    </AccordionSummary>
-                                    <AccordionDetails className={dashboardStyles.requestDetails}>
+                            <Accordion key={index} defaultExpanded={false}>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel3-content"
+                                    id="panel3-header"
+                                >
+                                    <div className={dashboardStyles.requestSummary}>
+                                        <Typography component="span">{`${_.capitalize(request.first_name)} ${_.capitalize(request.last_name)}`}</Typography>
                                         <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
-                                            <strong>Reason:</strong> {request.request_description}
+                                            <strong>Request Type:</strong> {request.request_type}
                                         </Typography>
-                                        <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
-                                            <strong>From:</strong> {moment(request.start_time).format('YYYY-MM-DD')}
-                                        </Typography>
-                                        <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
-                                            <strong>To:</strong> {moment(request.end_time).format('YYYY-MM-DD')}
-                                        </Typography>
-                                    </AccordionDetails>
-                                    <AccordionActions>
-                                        <Button variant={'outlined'} color={'error'} onClick={() => handleRequestAction(request.request_id, 'REJECTED')}>Reject</Button>
-                                        <Button variant={'contained'} onClick={() => handleRequestAction(request.request_id, 'APPROVED')}>Approve</Button>
-                                    </AccordionActions>
-                                </Accordion>
-                            </>
+                                    </div>
+                                </AccordionSummary>
+                                <AccordionDetails className={dashboardStyles.requestDetails}>
+                                    <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
+                                        <strong>Reason:</strong> {request.request_description}
+                                    </Typography>
+                                    <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
+                                        <strong>From:</strong> {moment(request.start_time).format('YYYY-MM-DD')}
+                                    </Typography>
+                                    <Typography component="span" style={{ fontSize: '14px', color: '#555' }}>
+                                        <strong>To:</strong> {moment(request.end_time).format('YYYY-MM-DD')}
+                                    </Typography>
+                                </AccordionDetails>
+                                <AccordionActions>
+                                    <Button variant={'outlined'} color={'error'} onClick={() => handleRequestAction(request.request_id, 'REJECTED')}>Reject</Button>
+                                    <Button variant={'contained'} onClick={() => handleRequestAction(request.request_id, 'APPROVED')}>Approve</Button>
+                                </AccordionActions>
+                            </Accordion>
                         ))
                     ) : (
                         <p style={{ fontSize: '14px', color: '#888' }}>No pending requests at the moment.</p>

@@ -12,9 +12,12 @@ import Schedule from '../components/AdminComponents/Schedule';
 import CrewManagement from '../components/AdminComponents/CrewManagement';
 import FlightHistory from '../components/AdminComponents/FlightHistory';
 import Sidebar from '../components/AdminComponents/SideBar';
+import { useAuth } from '../context/AuthContext';
 
 const Admin = () => {
 
+	const { token, userId, role, pilotId } = useAuth();
+	
 	const [activePage, setActivePage] = useState('dashboard');
 
 	const renderPage = () => {

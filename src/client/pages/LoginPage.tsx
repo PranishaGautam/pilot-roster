@@ -63,6 +63,7 @@ const LoginPage = () => {
 				setRole(loginResponseData.role); // Set the role in the context
 				if (loginResponseData.role === 'pilot') {
 					setPilotId(loginResponseData.pilot_id); // Set the pilot ID in the context
+					setUserId(loginResponseData.user_id);
 				} else if (loginResponseData.role === 'admin') {
 					setPilotId(null); // Set the pilot ID to null for admin
 					setUserId(loginResponseData.user_id); // Set the user ID in the context

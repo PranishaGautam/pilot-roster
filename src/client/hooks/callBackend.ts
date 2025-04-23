@@ -127,7 +127,7 @@ export function useBackendActions(): useBackendActionsReturn {
 	const getUserDetailById = useCallback(async (userId: string, token: string, trackingArea: string) => {
 		try {
 			const client = apiClientWithAuth(token); // Create an authenticated client
-			const response = await trackPromise(client.get(`/user/${userId}`), trackingArea);
+			const response = await trackPromise(client.get(`/users/user/${userId}`), trackingArea);
 			if (response.status !== 200) {
 				console.log('Failed to fetch user details', response.status);
 				throw new Error('Failed to fetch user details');

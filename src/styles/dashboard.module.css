@@ -4,14 +4,22 @@
     background-color: #f8f9fa;
 }
 
-/* .sidebar {
+.sidebar {
     width: 220px;
     background-color: #1f2937;
     color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-} */
+}
+
+.profileIntroSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    background-color: #111827;
+    margin-bottom: 3rem;
+}
 
 .sidebarHeader {
     padding: 1rem;
@@ -250,7 +258,7 @@
 
 .sidebar h2 {
     font-size: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 
 .sidebar ul {

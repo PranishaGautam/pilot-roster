@@ -3,8 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 import {
   Home, Calendar, AlertCircle, CloudSun,
-  MessageCircle, LogOut, FileText, Settings
+  MessageCircle, LogOut, FileText, Settings,
+  Pi
 } from 'lucide-react';
+
+import Sidebar from '../components/AdminComponents/SideBar';
+
+import dashboardStyles from '../../styles/dashboard.module.css';
 
 import notificationIcon from '../../assets/notification.png';
 import reportIssueIcon from '../../assets/reportissue.png';
@@ -12,25 +17,48 @@ import requestLeaveIcon from '../../assets/requestleave.png';
 import viewScheduleIcon from '../../assets/viewfullschedule.png';
 import SchedulesTable from '../components/SchedulesTable';
 
-const PilotDashboard: React.FC = () => {
+import { useAuth } from '../context/AuthContext';
+import TopNavBar from '../components/TopNavBar';
+import Requests from '../components/PilotComponents/Requests';
+import Notifications from '../components/PilotComponents/Notifications';
+import PilotDashboard from '../components/PilotComponents/PilotDashboard';
+
+const Pilot: React.FC = () => {
+
+	const { token, userId, role, pilotId } = useAuth();
 	const navigate = useNavigate();
 
+	const [activePage, setActivePage] = useState('dashboard');
+	
+	const renderPage = () => {
+		switch (activePage) {
+			case 'dashboard': 
+				return <PilotDashboard />;
+			case 'requests':
+				return <Requests />;
+			case 'notifications':
+				return <Notifications />;
+			default: 
+				return <PilotDashboard />;
+		}
+	};
+
 	const [dropdownOpen, setDropdownOpen] = useState(false);
-	const [pushEnabled, setPushEnabled] = useState(true);
-	const [unreadCount, setUnreadCount] = useState(3);
+	// const [pushEnabled, setPushEnabled] = useState(true);
+	// const [unreadCount, setUnreadCount] = useState(3);
 
-	const notifications = [
-		'Flight FL321 delayed by 25 mins',
-		'Weather alert on MIA route',
-		'New flight plan uploaded',
-	];
+	// const notifications = [
+	// 	'Flight FL321 delayed by 25 mins',
+	// 	'Weather alert on MIA route',
+	// 	'New flight plan uploaded',
+	// ];
 
-  	const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  	// const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
 	return (
 		<div style={styles.layout}>
 			{/* Sidebar */}
-			<aside style={styles.sidebar}>
+			{/* <aside style={styles.sidebar}>
 				<div style={styles.profileSection}>
 					<img src="/pilot.jpg" alt="Pilot" style={styles.avatar} />
 					<h2 style={styles.pilotName}>Welcome Back,<br />Capt. XXX</h2>
@@ -49,18 +77,25 @@ const PilotDashboard: React.FC = () => {
 				<div style={styles.logoutContainer}>
 					<SidebarItem icon={<LogOut size={18} />} label="Log Out" />
 				</div>
-			</aside>
+			</aside> */}
+			<Sidebar onSelect={setActivePage} activePage={activePage}/>
+
+			<div className={dashboardStyles.mainContent}>
+				<TopNavBar/>
+				{renderPage()}
+			</div>
 
 			{/* Main Content */}
-			<main style={styles.contentArea}>
+			{/* <main style={styles.contentArea}> */}
+				
 				{/* 🔔 Notification Bar */}
-				<div style={styles.headerBar}>
+				{/* <div style={styles.headerBar}>
 				<div style={styles.notificationContainer} onClick={toggleDropdown}>
 					<img src={notificationIcon} alt="Notifications" style={styles.notificationIcon} />
 					{unreadCount > 0 && <div style={styles.badge}>{unreadCount}</div>}
-				</div>
+				</div> */}
 
-				{dropdownOpen && (
+				{/* {dropdownOpen && (
 					<div style={styles.dropdown}>
 						<p style={styles.dropdownTitle}>Recent Notifications</p>
 						<ul>
@@ -79,10 +114,10 @@ const PilotDashboard: React.FC = () => {
 						</div>
 					</div>
 				)}
-				</div>
+				</div> */}
 
 				{/* Dashboard Overview */}
-				<div style={styles.topRow}>
+				{/* <div style={styles.topRow}>
 					<DashboardCard title="Next Duty" value="Apr 10, 08:00" color="#4e89ff" />
 					<DashboardCard title="Total Hours" value="1,530 hrs" color="#ffd76d" />
 					<DashboardCard title="Pending Reports" value="2" color="#ff6b6b" />
@@ -110,8 +145,8 @@ const PilotDashboard: React.FC = () => {
 						<li>✅ Medical Certificate verified</li>
 						</ul>
 					</div>
-				</div>
-			</main>
+				</div> */}
+			{/* </main> */}
 		</div>
 	);
 };
@@ -301,4 +336,4 @@ const styles: { [key: string]: React.CSSProperties } = {
 	},
 };
 
-export default PilotDashboard;
+export default Pilot;
