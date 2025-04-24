@@ -34,6 +34,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import PilotListModal from './PilotListModal';
 
@@ -395,7 +396,7 @@ const SchedulesTable = () => {
 										((rowsPerPage > 0) ? scheduleData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : scheduleData)
 										.map((row, index) => (
 											<TableRow key={index}>
-												<TableCell component="th" scope="row">
+												<TableCell component="th" style={{ width: 160 }} scope="row">
 													{row.flightNumber}
 												</TableCell>
 												<TableCell style={{ width: 160 }} align="left">
@@ -416,7 +417,18 @@ const SchedulesTable = () => {
 												<TableCell style={{ width: 160 }} align="left">
 													{
 														(row.pilot !== null )
-															? `${row.pilot.first_name} ${row.pilot.last_name}` 
+															? (
+																<>
+																	{`${row.pilot.first_name} ${row.pilot.last_name}`}
+																	{
+																		(role === 'admin') && (
+																			<IconButton onClick={() => handlePilotAssignment(row, 'pilot')}>
+																				<EditOutlinedIcon fontSize='small' color='primary'/>
+																			</IconButton>
+																		)
+																	}
+																</>
+															)
 															: (
 																<>
 																	{
@@ -434,7 +446,18 @@ const SchedulesTable = () => {
 												<TableCell style={{ width: 160 }} align="left">
 													{
 														(row.coPilot !== null)
-															? `${row.coPilot.first_name} ${row.coPilot.last_name}` 
+															? (
+																<>
+																	{`${row.coPilot.first_name} ${row.coPilot.last_name}`}
+																	{
+																		(role === 'admin') && (
+																			<IconButton onClick={() => handlePilotAssignment(row, 'co_pilot')}>
+																				<EditOutlinedIcon fontSize='small' color='primary'/>
+																			</IconButton>
+																		)
+																	}
+																</>
+															)
 															: (
 																<>
 																	{
