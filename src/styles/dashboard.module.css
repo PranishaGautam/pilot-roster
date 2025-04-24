@@ -16,9 +16,21 @@
 .profileIntroSection {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.75rem;
     background-color: #111827;
     margin-bottom: 3rem;
+}
+
+.logoDiv {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 1.5rem;
+}
+
+.logoIcon {
+    color: #fff;
+    height: 100%;
 }
 
 .sidebarHeader {
@@ -78,10 +90,7 @@
 }
 .topBar {
     display: flex;
-    /* justify-content: space-between; */
     justify-content: end;
-    /* align-items: center; */
-    /* align-items: end; */
 }
 
 .pageTitle {
@@ -334,4 +343,11 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #a9dfbf;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
 }

@@ -6,6 +6,8 @@ import {
 	MessageCircle, LogOut, FileText, Settings
 } from 'lucide-react';
 
+import ConnectingAirportsOutlinedIcon from '@mui/icons-material/ConnectingAirportsOutlined';
+
 import dashboardStyles from '../../../styles/dashboard.module.css'
 
 import { useBackendActions } from '../../hooks/callBackend';
@@ -71,7 +73,10 @@ const SideBar = ({ onSelect, activePage }: Props) => {
 			<div className={dashboardStyles.topItems}>
 
 				<div className={dashboardStyles.profileIntroSection}>
-					<h2>Udaan</h2>
+					<div className={dashboardStyles.logoDiv}>
+						<h2>Udaan</h2>
+						<ConnectingAirportsOutlinedIcon className={dashboardStyles.logoIcon} />
+					</div>
 
 					<div className={dashboardStyles.profileSection}>
 						<h3 className={dashboardStyles.pilotName}>

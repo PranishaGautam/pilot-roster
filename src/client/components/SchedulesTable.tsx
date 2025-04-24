@@ -1,5 +1,5 @@
-import React, { useState, useContext, useMemo, useEffect } from 'react';
-import _, { set } from 'lodash';
+import React, { useState, useMemo, useEffect } from 'react';
+import _ from 'lodash';
 import moment from 'moment';
 
 import {
@@ -36,19 +36,18 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import PilotListModal from './PilotListModal';
-import Spinner from './Spinner';
 
 import schedulesTableStyles from '../../styles/schedulesTable.module.css';
-
-import isLoading from '../hooks/isLoading';
-import { useBackendActions } from '../hooks/callBackend';
-import { useToast } from '../hooks/useToast';
-import { useAuth } from '../context/AuthContext';
 
 import { FlightDetailQueryParams } from '../models/requests-interface';
 import { FlightDetails } from '../models/response-interface';
 import { ScheduleTableData } from '../models/schedule-interface';
 import { TablePaginationActionsProps } from '../models/table-pagination-interface';
+
+import isLoading from '../hooks/isLoading';
+import { useBackendActions } from '../hooks/callBackend';
+import { useToast } from '../hooks/useToast';
+import { useAuth } from '../context/AuthContext';
 
 import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
 

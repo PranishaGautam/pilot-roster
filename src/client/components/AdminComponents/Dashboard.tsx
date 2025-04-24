@@ -124,46 +124,6 @@ const Dashboard = () => {
         }
     }
 
-    const last7Days = [...Array(7)].map((_, i) => 
-        moment().subtract(i, 'days').toDate()
-    ).reverse();
-
-    const aggregatedFlightHours: Array<number> = useMemo(() => {
-        const dailyFlightHours: Record<string, number> = {};
-
-        // Loop through scheduleData to compute daily flight hours.
-        scheduleData.forEach((schedule) => {
-            // Convert departureTime & arrivalTime to Moment for calculations.
-            const departure = moment(schedule.departureTime, 'YYYY-MM-DD HH:mm:ss');
-            const arrival = moment(schedule.arrivalTime, 'YYYY-MM-DD HH:mm:ss');
-
-            // Check if the flight falls within the last 7 days.
-            const isWithinLast7Days = last7Days.some(day => {
-            const dayStart = moment(day).startOf('day');
-            const dayEnd = moment(day).endOf('day');
-            return departure.isBetween(dayStart, dayEnd, null, '[]') || arrival.isBetween(dayStart, dayEnd, null, '[]');
-            });
-
-            if (isWithinLast7Days) {
-                // Calculate flight duration in hours.
-                const flightDurationHours = arrival.diff(departure, 'hours');
-
-                // Format departure date as YYYY-MM-DD to group by day.
-                const dayKey = departure.format('YYYY-MM-DD');
-
-                // Add up the total flight hours.
-                if (!dailyFlightHours[dayKey]) {
-                    dailyFlightHours[dayKey] = 0;
-                }
-                dailyFlightHours[dayKey] += flightDurationHours;
-            }
-        });
-
-        // 3. Build the array of flight hours for each of the last 7 days.
-        const flightHoursData = last7Days.map(day => dailyFlightHours[moment(day).format('YYYY-MM-DD')] || 0);
-        return flightHoursData;
-    }, [scheduleData]);
-
     const getPilots = () => {
         if (token) {
             getAllPilots('pilot-area', token)
@@ -258,37 +218,6 @@ const Dashboard = () => {
 
             <section className={dashboardStyles.overviewMidDiv}>
                 <FlightDistributionChart/>
-                {/* <div className={dashboardStyles.chartDiv}>
-                    <h2 className={dashboardStyles.sectionTitle}>Flight Hours Distribution</h2>
-                    <div className={dashboardStyles.dsitributionChart}>
-                        <LineChart
-                            xAxis={[
-                                {
-                                    id: 'date',
-                                    label: 'Day of the Week (Past 7 days)', 
-                                    scaleType: 'point',
-                                    data: last7Days,
-                                    valueFormatter: (date) => `${moment(date).format('dddd')}` // Format to get day of the week
-                                }
-                            ]}
-                            yAxis={[
-                                {
-                                    id: 'flightHours',
-                                    label: 'Total Flight Hours',
-                                    scaleType: 'linear',
-                                }
-                            ]}
-                            series={[
-                                {
-                                    data: aggregatedFlightHours,
-                                    area: true,
-                                },
-                            ]}
-                            height={250}
-                            width={600}
-                        />
-                    </div>
-                </div> */}
 
                 <div className={dashboardStyles.pilotAvailabilityDiv}>
                     <h2 className={dashboardStyles.sectionTitle}>Pilot Availability</h2>

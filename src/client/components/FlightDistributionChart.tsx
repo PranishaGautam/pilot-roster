@@ -17,9 +17,7 @@ import { ScheduleTableData } from './../models/schedule-interface';
 const FlightDistributionChart = () => {
 
 	const { token, userId, pilotId, role } = useAuth();
-	
 	const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
-
 	const { successToast, errorToast } = useToast();
 
 	const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
@@ -104,7 +102,6 @@ const FlightDistributionChart = () => {
 		moment().subtract(i, 'days').toDate()
 	).reverse();
 
-	
 	const aggregatedFlightHours: Array<number> = useMemo(() => {
 		const dailyFlightHours: Record<string, number> = {};
 

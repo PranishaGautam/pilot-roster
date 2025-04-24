@@ -17,6 +17,10 @@ import FlightDistributionChart from '../FlightDistributionChart';
 
 
 const PilotDashboard = () => {
+
+    const { token, userId } = useAuth();
+    const { getAllLeaveRequests, updateLeaveRequest, getFlightDetails } = useBackendActions();
+    const { successToast, errorToast } = useToast();
     
     const cardDisplayContents = [
         {
@@ -41,13 +45,6 @@ const PilotDashboard = () => {
             date: '2025-04-01 10:00:00',
         }
     ]
-
-    const { token, userId } = useAuth();
-
-    const { getAllLeaveRequests, updateLeaveRequest, getFlightDetails } = useBackendActions();
-
-    const { successToast, errorToast } = useToast();
-
 
     const isLoadingData = isLoading('update-leave-request');
 
