@@ -10,7 +10,7 @@ export interface FlightDetailQueryParams {
 
 export interface PilotDetailQueryParams {
     role?: string,
-    availability?: string,
+    status?: string,
 }
 
 export interface AssignPilotRequestBody {

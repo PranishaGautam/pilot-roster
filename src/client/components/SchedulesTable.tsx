@@ -396,25 +396,25 @@ const SchedulesTable = () => {
 										((rowsPerPage > 0) ? scheduleData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : scheduleData)
 										.map((row, index) => (
 											<TableRow key={index}>
-												<TableCell component="th" style={{ width: 160 }} scope="row">
+												<TableCell component="th" style={{ width: 100 }} scope="row">
 													{row.flightNumber}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 100 }} align="left">
 													{row.origin}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 100 }} align="left">
 													{row.destination}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 150 }} align="left">
 													{moment(row.departureTime).format('YYYY-MM-DD HH:mm:ss')}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 150 }} align="left">
 													{moment(row.arrivalTime).format('YYYY-MM-DD HH:mm:ss')}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 100 }} align="left">
 													{row.status}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 180 }} align="left">
 													{
 														(row.pilot !== null )
 															? (
@@ -439,11 +439,10 @@ const SchedulesTable = () => {
 																		)
 																	}
 																</>
-																
 															)
 													}
 												</TableCell>
-												<TableCell style={{ width: 160 }} align="left">
+												<TableCell style={{ width: 180 }} align="left">
 													{
 														(row.coPilot !== null)
 															? (

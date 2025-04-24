@@ -21,7 +21,9 @@ import {
     Button,
     CircularProgress,
 } from '@mui/material';
+
 import RefreshIcon from '@mui/icons-material/Refresh';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 import flightcrewStyles from '../../styles/flightCrewTable.module.css';
 
@@ -39,110 +41,25 @@ const FlightCrewAvailabilityTable = () => {
     const { getAllPilots } = useBackendActions();
     const { successToast, errorToast } = useToast();
 
-    // Sample data for pilots
-    // const [crewData, setCrewData] = useState([
-    //     {
-    //         id: 'P001',
-    //         firstName: 'John',
-    //         lastName: 'Doe',
-    //         role: 'Captain',
-    //         hoursFlown: 12,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P002',
-    //         firstName: 'Jane',
-    //         lastName: 'Smith',
-    //         role: 'First Officer',
-    //         hoursFlown: 8,
-    //         availability: 'Unavailable',
-    //     },
-    //     {
-    //         id: 'P003',
-    //         firstName: 'Alice',
-    //         lastName: 'Johnson',
-    //         role: 'Captain',
-    //         hoursFlown: 15,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P004',
-    //         firstName: 'Bob',
-    //         lastName: 'Brown',
-    //         role: 'First Officer',
-    //         hoursFlown: 10,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P005',
-    //         firstName: 'Charlie',
-    //         lastName: 'Davis',
-    //         role: 'Captain',
-    //         hoursFlown: 5,
-    //         availability: 'Unavailable',
-    //     },
-    //     {
-    //         id: 'P006',
-    //         firstName: 'David',
-    //         lastName: 'Wilson',
-    //         role: 'First Officer',
-    //         hoursFlown: 20,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P007',
-    //         firstName: 'Eve',
-    //         lastName: 'Garcia',
-    //         role: 'Captain',
-    //         hoursFlown: 18,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P008',
-    //         firstName: 'Frank',
-    //         lastName: 'Martinez',
-    //         role: 'First Officer',
-    //         hoursFlown: 7,
-    //         availability: 'Unavailable',
-    //     },
-    //     {
-    //         id: 'P009',
-    //         firstName: 'Grace',
-    //         lastName: 'Hernandez',
-    //         role: 'Captain',
-    //         hoursFlown: 14,
-    //         availability: 'Available',
-    //     },
-    //     {
-    //         id: 'P010',
-    //         firstName: 'Henry',
-    //         lastName: 'Lopez',
-    //         role: 'First Officer',
-    //         hoursFlown: 11,
-    //         availability: 'Available',
-    //     },
-    // ]);
-
     const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
 
-    const [availability, setAvailability] = useState('');
+    const [status, setStatus] = useState('');
     const [role, setRole] = useState('');
 
     const handleSelectAvailability = (event: SelectChangeEvent) => {
-        setAvailability(event.target.value as string);
+        setStatus(event.target.value as string);
     };
 
     
     const getPilots = () => {
         const params = {
-            availability: availability,
+            status: status,
             role: role,
         }
 
         if (token) {
             getAllPilots('pilot-area', token, params)
                 .then((data) => {
-                    // successToast('Pilots fetched successfully!');
                     console.log('Fetched pilots:', data);
                     setPilotList(data);
                 })
@@ -159,6 +76,11 @@ const FlightCrewAvailabilityTable = () => {
         setRole(event.target.value as string);
     };
 
+    const handleRoleAssignment = (pilot: PilotResponse) => {
+        // Logic to open modal for assigning role to pilot
+        console.log('Assigning role to pilot:', pilot);
+    }
+
     // Logic to call backend to refresh data
     const handleApplySelections = () => {
         getPilots();
@@ -166,7 +88,7 @@ const FlightCrewAvailabilityTable = () => {
 
     // Handle refresh action
     const handleRefresh = () => {
-        setAvailability('');
+        setStatus('');
         setRole('');
     };
 
@@ -203,7 +125,7 @@ const FlightCrewAvailabilityTable = () => {
                         <Select
                             labelId="simple-select-label-availability"
                             id="simple-select-small"
-                            value={availability}
+                            value={status}
                             label="Availability"
                             onChange={handleSelectAvailability}
                             autoWidth
@@ -282,10 +204,30 @@ const FlightCrewAvailabilityTable = () => {
                                                 {paginatedData.map((pilot, index) => (
                                                     <TableRow key={index}>
                                                         <TableCell>{pilot.pilot_id}</TableCell>
-                                                        <TableCell>{`${_.capitalize(pilot.first_name)} ${_.capitalize(pilot.last_name)}`}</TableCell>
-                                                        <TableCell>{_.startCase(_.toLower(pilot.role))}</TableCell>
-                                                        <TableCell>{pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}</TableCell>
-                                                        <TableCell>{pilot.status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</TableCell>
+                                                        <TableCell>
+                                                            {`${_.capitalize(pilot.first_name)} ${_.capitalize(pilot.last_name)}`}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {
+                                                                !pilot.role ? (
+                                                                    <>
+                                                                        <IconButton onClick={() => handleRoleAssignment(pilot)}>
+                                                                            <EditOutlinedIcon fontSize='small' color='primary'/>
+                                                                        </IconButton>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        {_.startCase(_.toLower(pilot.role))}
+                                                                    </>
+                                                                )
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {pilot.status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                                        </TableCell>
                                                     </TableRow>
                                                 ))}
                                             </>

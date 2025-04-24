@@ -68,12 +68,14 @@ export const statusOptions = [
 // *************************************
 
 export const pilotRoleOptions = [
+    { value: 'Senior Captain', label: 'Senior Captain' },
     { value: 'Captain', label: 'Captain' },
-    { value: 'First Officer', label: 'First Officer' },
-    { value: 'Second Officer', label: 'Second Officer' }
+    { value: 'First Officer', label: 'First Officer' }
 ];
 
 export const optionsOfAvailability = [
-        { value: 'true', label: 'Available' },
-        { value: 'false', label: 'Unavailable' }
-    ];
+        { value: 'available', label: 'Available' },
+        { value: 'stand by', label: 'Stand By' },
+        { value: 'time off', label: 'On Leave' },
+        { value: 'in flight', label: 'On Duty' }
+];
