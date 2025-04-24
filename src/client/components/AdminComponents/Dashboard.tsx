@@ -24,6 +24,7 @@ import { PilotResponse, PilotRequests, FlightDetails } from '../../models/respon
 import { useToast } from '../../hooks/useToast';
 import { UpdatePilotRequestPayload, UpdateRequestPayload } from '../../models/requests-interface';
 import { ScheduleTableData } from '../../models/schedule-interface';
+import FlightDistributionChart from '../FlightDistributionChart';
 
 const Dashboard = () => {
     
@@ -85,7 +86,6 @@ const Dashboard = () => {
     const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
     
     const getFlightDetailsData = async () => {
-
         if (token) {
             // Call the backend API with the selected parameters
             getFlightDetails('schedules-area', token)
@@ -128,8 +128,6 @@ const Dashboard = () => {
         moment().subtract(i, 'days').toDate()
     ).reverse();
 
-    console.log(`Last 7 days:`, last7Days);
-
     const aggregatedFlightHours: Array<number> = useMemo(() => {
         const dailyFlightHours: Record<string, number> = {};
 
@@ -165,8 +163,6 @@ const Dashboard = () => {
         const flightHoursData = last7Days.map(day => dailyFlightHours[moment(day).format('YYYY-MM-DD')] || 0);
         return flightHoursData;
     }, [scheduleData]);
-
-    console.log(`Aggregated flight hours:`, aggregatedFlightHours);
 
     const getPilots = () => {
         if (token) {
@@ -261,7 +257,8 @@ const Dashboard = () => {
             </section>
 
             <section className={dashboardStyles.overviewMidDiv}>
-                <div className={dashboardStyles.chartDiv}>
+                <FlightDistributionChart/>
+                {/* <div className={dashboardStyles.chartDiv}>
                     <h2 className={dashboardStyles.sectionTitle}>Flight Hours Distribution</h2>
                     <div className={dashboardStyles.dsitributionChart}>
                         <LineChart
@@ -291,7 +288,7 @@ const Dashboard = () => {
                             width={600}
                         />
                     </div>
-                </div>
+                </div> */}
 
                 <div className={dashboardStyles.pilotAvailabilityDiv}>
                     <h2 className={dashboardStyles.sectionTitle}>Pilot Availability</h2>

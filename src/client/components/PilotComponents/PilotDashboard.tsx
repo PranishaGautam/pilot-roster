@@ -13,6 +13,7 @@ import { useBackendActions } from '../../hooks/callBackend';
 import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
 import { useToast } from '../../hooks/useToast';
 import { UpdatePilotRequestPayload, UpdateRequestPayload } from '../../models/requests-interface';
+import FlightDistributionChart from '../FlightDistributionChart';
 
 
 const PilotDashboard = () => {
@@ -75,6 +76,10 @@ const PilotDashboard = () => {
                         />
                     ))}
                 </div>
+            </section>
+
+            <section className={dashboardStyles.flightDistributionDiv}>
+                <FlightDistributionChart/>
             </section>
 
             <section>

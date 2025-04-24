@@ -15,3 +15,72 @@
     display: flex;
     gap: 1rem;
 }
+
+/* Notifications section */
+
+.notificationContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dashboardContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.requestHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.requestDisplayDiv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.requestContentDiv {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: start;
+    justify-content: start;
+}
+
+.requestTopDiv {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+}
+
+.requestBottomDiv {
+    display: flex;
+    justify-content: start;
+}
+
+.requestForm {
+    height: 30vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dateRow {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: fit-content;
+    gap: 1rem;
+}

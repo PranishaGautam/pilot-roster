@@ -100,3 +100,20 @@ export interface PilotRequests {
     start_date: Date;
     end_date: Date;
 }
+
+export interface NotificationResponse {
+    notification_id: number;
+    type: string;
+    title: string;
+    message: string;
+    status: string;
+    created_at: string;
+    created_by: number;
+    creator_first_name: string;
+    creator_last_name: string;
+    creator_email: string;
+    recipient_id: number;
+    recipient_first_name: string;
+    recipient_last_name: string;
+    recipient_email: string;
+}

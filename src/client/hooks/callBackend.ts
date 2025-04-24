@@ -16,6 +16,7 @@ import {
 	FlightDetails,
 	PilotResponse,
 	PilotRequests,
+	NotificationResponse,
 } from '../models/response-interface';
 
 // Base URL for the backend API
@@ -59,6 +60,9 @@ interface useBackendActionsReturn {
 	leaveRequest: (trackingArea: string, token: string, body: any) => Promise<void>;
 	updateLeaveRequest: (trackingArea: string, token: string, requestId: number, body: UpdatePilotRequestPayload) => Promise<void>;
 	getAllLeaveRequests: (trackingArea: string, token: string) => Promise<Array<PilotRequests>>;
+	getLeaveRequestsByPilotId: (trackingArea: string, token: string, pilotId: string) => Promise<Array<PilotRequests>>;
+	getAllNotifications: (trackingArea: string, token: string) => Promise<Array<NotificationResponse>>;
+	getNotificationsByUserId: (userId: string, token: string, trackingArea: string) => Promise<Array<NotificationResponse>>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -241,6 +245,21 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const getLeaveRequestsByPilotId = useCallback(async (trackingArea: string, token: string, pilotId: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/pilotRequests/pilot/${pilotId}`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch leave requests for pilot', response.status);
+				throw new Error('Failed to fetch leave requests for pilot');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	const leaveRequest = useCallback(async (trackingArea: string, token: string, body: any) => {
 		try {
 			const client = apiClientWithAuth(token); // Create an authenticated client
@@ -269,6 +288,35 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const getAllNotifications = useCallback(async (trackingArea: string, token: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/notifications`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch all notifications', response.status);
+				throw new Error('Failed to fetch all notifications');
+			}
+			return response.data;
+		} catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const getNotificationsByUserId = useCallback(async (userId: string, token: string, trackingArea: string) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.get(`/notifications/notification/${userId}`), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to fetch notifications by user ID', response.status);
+				throw new Error('Failed to fetch notifications by user ID');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	return {
 		login,
 		register,
@@ -282,5 +330,8 @@ export function useBackendActions(): useBackendActionsReturn {
 		leaveRequest,
 		updateLeaveRequest,
 		getAllLeaveRequests,
+		getLeaveRequestsByPilotId,
+		getAllNotifications,
+		getNotificationsByUserId,
 	}
 }
