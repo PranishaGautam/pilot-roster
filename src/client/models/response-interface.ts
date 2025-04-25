@@ -35,7 +35,7 @@ export interface RegisterResponse {
 }
 
 export interface UserDetails {
-    id: string;
+    id: number;
     first_name: string;
     last_name: string;
     email: string;
@@ -63,6 +63,7 @@ export interface FlightDetails {
 
 export interface PilotDetail {
     pilot_id: number;
+    user_id: number;
     first_name: string;
     last_name: string;
     role: string;
@@ -116,4 +117,15 @@ export interface NotificationResponse {
     recipient_first_name: string;
     recipient_last_name: string;
     recipient_email: string;
+}
+
+export interface NotificationUpdateResponse {
+    notification_id?: string;
+    type: string; // e.g., "schedule_change", "request_update"
+    title: string;
+    message: string;
+    recipient_id?: number; // ID of the user receiving the notification
+    created_at?: string; // Time of notification creation
+    created_by: string; // ID of the user who created the notification
+    status?: string; // e.g., "unread", "read"
 }

@@ -20,6 +20,7 @@ import {
     IconButton,
     Button,
     CircularProgress,
+    Modal,
 } from '@mui/material';
 
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -33,12 +34,13 @@ import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
 import isLoading from '../hooks/isLoading';
 import { PilotResponse } from '../models/response-interface';
+import { PilotUpdatePayload } from '../models/requests-interface';
 import Spinner from './Spinner';
 
 const FlightCrewAvailabilityTable = () => {
 
     const { token } = useAuth();
-    const { getAllPilots } = useBackendActions();
+    const { getAllPilots, updatePilotById } = useBackendActions();
     const { successToast, errorToast } = useToast();
 
     const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
@@ -46,10 +48,14 @@ const FlightCrewAvailabilityTable = () => {
     const [status, setStatus] = useState('');
     const [role, setRole] = useState('');
 
+    const [pilotRole, setPilotRole] = useState('');
+    const [selectedPilot, setSelectedPilot] = useState<PilotResponse>();
+
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
     const handleSelectAvailability = (event: SelectChangeEvent) => {
         setStatus(event.target.value as string);
     };
-
     
     const getPilots = () => {
         const params = {
@@ -72,14 +78,42 @@ const FlightCrewAvailabilityTable = () => {
         }
     };
 
+    const handleEditPilotUpdate = (pilot: PilotResponse, toUpdateParam: keyof PilotUpdatePayload) => {
+        setIsEditModalOpen(true);
+        setSelectedPilot(pilot);
+    }
+
     const handleRoleSelection = (event: SelectChangeEvent) => {
         setRole(event.target.value as string);
     };
 
-    const handleRoleAssignment = (pilot: PilotResponse) => {
-        // Logic to open modal for assigning role to pilot
-        console.log('Assigning role to pilot:', pilot);
-    }
+    const handleUpdatePilotDetails = (updateKey: keyof PilotUpdatePayload, value: any, pilotId: number | undefined) => {
+
+        if (!pilotId) {
+            errorToast('Pilot ID is missing!');
+            return;
+        }
+
+        const payload: PilotUpdatePayload = {
+            [updateKey]: value
+        }
+
+        if (token) {
+            updatePilotById('pilot-area', token, pilotId.toLocaleString(), payload)
+                .then((response) => {
+                    console.log('Pilot details updated successfully:', response);
+                    successToast('Pilot details updated successfully!');
+                    getPilots(); // Refresh the pilot list after updating
+                })
+                .catch((error) => { 
+                    console.log(error);
+                    errorToast('Failed to update pilot details!');
+                })
+                .finally(() => {
+                    setIsEditModalOpen(false); // Close the modal after updating
+                });
+        }
+    };
 
     // Logic to call backend to refresh data
     const handleApplySelections = () => {
@@ -211,7 +245,7 @@ const FlightCrewAvailabilityTable = () => {
                                                             {
                                                                 !pilot.role ? (
                                                                     <>
-                                                                        <IconButton onClick={() => handleRoleAssignment(pilot)}>
+                                                                        <IconButton onClick={() => handleEditPilotUpdate(pilot, 'role')}>
                                                                             <EditOutlinedIcon fontSize='small' color='primary'/>
                                                                         </IconButton>
                                                                     </>
@@ -249,6 +283,47 @@ const FlightCrewAvailabilityTable = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </TableContainer>
+            {/* Edit Modal */}
+            {
+                <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className={flightcrewStyles.modal}>
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: 'fit-content',
+                            bgcolor: 'background.paper',
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+                            <InputLabel id="simple-select-label-role">Role</InputLabel>
+                            <Select
+                                labelId="simple-select-label-role"
+                                id="simple-select-small"
+                                value={pilotRole}
+                                label="Role"
+                                onChange={(event) => setPilotRole(event.target.value)}
+                                autoWidth
+                                size='small'
+                            >
+                                {pilotRoleOptions.map((option, index) => (
+                                    <MenuItem key={index} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                                
+                            </Select>
+                        </FormControl>
+                        <Button variant='contained' onClick={() => handleUpdatePilotDetails('role', pilotRole, selectedPilot?.pilot_id)}>Save</Button>
+                    </Box>
+                </Modal>
+            }
         </Box>
     );
 };

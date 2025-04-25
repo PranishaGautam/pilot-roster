@@ -79,3 +79,13 @@ export const optionsOfAvailability = [
         { value: 'time off', label: 'On Leave' },
         { value: 'in flight', label: 'On Duty' }
 ];
+
+export const notificationTypes = [
+    { label: 'Flight Schedule', value: 'FLIGHT_SCHEDULE' },
+    { label: 'Flight Delay', value: 'FLIGHT_DELAY' },
+    { label: 'Flight Cancellation', value: 'FLIGHT_CANCELLATION' },
+    { label: 'Flight Assignment', value: 'FLIGHT_ASSIGNMENT' },
+    { label: 'Info', value: 'INFO' },
+    { label: 'Alert', value: 'ALERT' },
+    { label: 'Reminder', value: 'REMINDER' }
+]

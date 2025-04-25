@@ -120,7 +120,7 @@ const SchedulesTable = () => {
 
 	const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
 
-	const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+	const [selectedSchedule, setSelectedSchedule] = useState<ScheduleTableData | null>(null);
 	const [assignPilotType, setPilotAssignType] = useState<string | null>(null);
 	const [isPilotListModalOpen, setIsPilotListModalOpen] = useState(false);
 
@@ -237,7 +237,7 @@ const SchedulesTable = () => {
 
 	//Handler to assign the pilot to the flight
 	const handlePilotAssignment = (flight: ScheduleTableData, assignType: string) => {
-		setSelectedScheduleId(flight.scheduleId.toString());
+		setSelectedSchedule(flight);
 		setPilotAssignType(assignType);
 		setIsPilotListModalOpen(true);
 	}
@@ -513,8 +513,8 @@ const SchedulesTable = () => {
 				(role === 'admin') && (
 					<PilotListModal 
 						isOpen={isPilotListModalOpen} 
-						setIsOpen={setIsPilotListModalOpen} 
-						scheduleId={selectedScheduleId}
+						setIsOpen={setIsPilotListModalOpen}
+						schedule={selectedSchedule}
 						assignType={assignPilotType}
 						setAssignType={setPilotAssignType}
 						setNeedsTableRefresh={setNeedsTableRefresh}

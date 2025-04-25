@@ -1,56 +1,87 @@
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import produce from 'immer';
 
 import {
-    Modal,
     Box,
-    Typography,
     Button,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemButton,
-    IconButton,
-    CircularProgress
+    CircularProgress,
+    Modal,
+    Typography
 } from '@mui/material';
 
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-
-import Spinner from './Spinner';
 
 import pilotModalListStyle from '../../styles/pilotModalList.module.css';
 
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import { useBackendActions } from '../hooks/callBackend';
 import isLoading from '../hooks/isLoading';
 import { useToast } from '../hooks/useToast';
-import { useAuth } from '../context/AuthContext';
-import { PilotResponse, FlightDetails } from '../models/response-interface';
-import { toast } from 'react-toastify';
+import { InsertNotificationPayload } from '../models/requests-interface';
+import { PilotResponse } from '../models/response-interface';
+import { ScheduleTableData } from '../models/schedule-interface';
 
 interface Props {
     isOpen: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    scheduleId: string | null;
+    schedule: ScheduleTableData | null;
     assignType: string | null;
     setAssignType: React.Dispatch<React.SetStateAction<string | null>>;
     setNeedsTableRefresh: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignType, setNeedsTableRefresh }: Props) => {
+const PilotListModal = ({ isOpen, setIsOpen, schedule, assignType, setAssignType, setNeedsTableRefresh }: Props) => {
 
-    const { token } = useAuth();
+    const { token, userId } = useAuth();
     
-    const { getAllPilots, assignPilotToFlight } = useBackendActions();
+    const { getAllPilots, assignPilotToFlight, insertNotification } = useBackendActions();
     const { successToast, errorToast } = useToast();
 
     const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
     const [selectedPilot, setSelectedPilot] = useState<PilotResponse | null>(null);
+
+    const handleNotifyPilotOnScheduleAssignment = () => {
+        if (!token) return;
+        if (!userId) return;
+
+        const messageDescription = `
+            You have been assigned to a flight number: ${schedule?.flightNumber}. Please check your schedule for more details. \n
+
+            Flight Details:
+            Flight Number: ${schedule?.flightNumber}\n
+            Date: ${moment(schedule?.departureTime).format('DD/MM/YYYY HH')} \n
+            Route: ${schedule?.origin} -> ${schedule?.destination} \n
+
+            If you have any questions, please contact the scheduling department.
+            Thank you for your cooperation. \n
+
+            Best regards,
+            Flight Scheduling Team
+        `;
+
+        const payload: InsertNotificationPayload = {
+            title: 'Schedule Assignment',
+            message: messageDescription,
+            type: 'FLIGHT_ASSIGNMENT',
+            created_by: userId,
+            recipient_id: selectedPilot?.user_id
+        };
+
+        insertNotification('insert-notifications-area', token, payload)
+            .then(() => {
+                successToast('Notification message sent successfully!');
+            })
+            .catch(() => {
+                console.log('Error sending notification message!');
+            });
+    };
 
     // Handle assign action
     const handleAssign = () => {
@@ -61,7 +92,7 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
             toast.error('Please select a pilot to assign!');
         }
 
-        if (!scheduleId) {
+        if (!schedule?.scheduleId) {
             toast.error('Schedule ID is missing!');
             return;
         }
@@ -70,10 +101,11 @@ const PilotListModal = ({ isOpen, setIsOpen, scheduleId, assignType, setAssignTy
             return;
         }
 
-        if (token && scheduleId && assignType && selectedPilot) {
-            assignPilotToFlight('assign-pilot-area', token, scheduleId, { assignType, pilotId: selectedPilot.pilot_id })
+        if (token && schedule?.scheduleId && assignType && selectedPilot) {
+            assignPilotToFlight('assign-pilot-area', token, schedule?.scheduleId?.toLocaleString(), { assignType, pilotId: selectedPilot.pilot_id })
             .then((response) => {
                 console.log('Pilot assigned successfully:', response);
+                handleNotifyPilotOnScheduleAssignment();
                 successToast('Pilot assigned successfully!');
                 setIsOpen(false);
                 setAssignType(null);

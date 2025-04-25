@@ -13,11 +13,10 @@ import CrewManagement from '../components/AdminComponents/CrewManagement';
 import FlightHistory from '../components/AdminComponents/FlightHistory';
 import Sidebar from '../components/AdminComponents/SideBar';
 import { useAuth } from '../context/AuthContext';
+import Notifications from '../components/PilotComponents/Notifications';
 
 const Admin = () => {
 
-	const { token, userId, role, pilotId } = useAuth();
-	
 	const [activePage, setActivePage] = useState('dashboard');
 
 	const renderPage = () => {
@@ -30,6 +29,8 @@ const Admin = () => {
 				return <CrewManagement />;
 			case 'history': 
 				return <FlightHistory />;
+			case 'notifications':
+				return <Notifications />;
 			default: 
 				return <Dashboard />;
 		}
@@ -42,14 +43,6 @@ const Admin = () => {
 				<TopNavBar/>
 				{renderPage()}
 			</div>
-			{/* <main className={dashboardStyles.mainContent}>
-				<TopNavBar/>
-
-				<Sidebar/>
-				<div className={dashboardStyles.mainContent}>
-					{renderPage()}
-				</div>
-			</main> */}
 		</div>
 	);
 };

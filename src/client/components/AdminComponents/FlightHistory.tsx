@@ -76,9 +76,13 @@ const FlightHistory = () => {
 
     const getFlightDetailsData = async () => {
 
+        const params: FlightDetailQueryParams = {
+            end_date: `${new Date().toISOString().split('.')[0]}Z`,
+        };
+
         if (token) {
             // Call the backend API with the selected parameters
-            getFlightDetails('schedules-area', token)
+            getFlightDetails('schedules-area', token, params)
             .then((response) => {
                 if (response.length === 0) {
                     errorToast('No schedules found for the selected criteria.');

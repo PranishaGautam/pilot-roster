@@ -84,3 +84,9 @@
     width: fit-content;
     gap: 1rem;
 }
+
+.notificationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

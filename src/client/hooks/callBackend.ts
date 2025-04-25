@@ -6,7 +6,10 @@ import {
 	AssignPilotRequestBody,
 	FlightDetailQueryParams, 
 	PilotDetailQueryParams,
-	UpdatePilotRequestPayload
+	UpdatePilotRequestPayload,
+	PilotUpdatePayload,
+	InsertNotificationPayload,
+	UpdateNotificationStatusPayload,
 } from '../models/requests-interface';
 
 import { 
@@ -17,6 +20,7 @@ import {
 	PilotResponse,
 	PilotRequests,
 	NotificationResponse,
+	NotificationUpdateResponse,
 } from '../models/response-interface';
 
 // Base URL for the backend API
@@ -56,6 +60,7 @@ interface useBackendActionsReturn {
 	getFlightDetailsByPilotId: (trackingArea: string, token: string, pilotId: string, queryParams?: FlightDetailQueryParams) => Promise<Array<FlightDetails>>;
 	getAllPilots: (trackingArea: string, token: string, queryParams?: PilotDetailQueryParams) => Promise<Array<PilotResponse>>;
 	getPilotById: (trackingArea: string, token: string, userId: string) => Promise<PilotResponse>;
+	updatePilotById: (trackingArea: string, token: string, pilotId: string, body: PilotUpdatePayload) => Promise<PilotResponse>;
 	assignPilotToFlight: (trackingArea: string, token: string, scheduleId: string, body: AssignPilotRequestBody) => Promise<void>;
 	leaveRequest: (trackingArea: string, token: string, body: any) => Promise<void>;
 	updateLeaveRequest: (trackingArea: string, token: string, requestId: number, body: UpdatePilotRequestPayload) => Promise<void>;
@@ -63,6 +68,8 @@ interface useBackendActionsReturn {
 	getLeaveRequestsByPilotId: (trackingArea: string, token: string, pilotId: string) => Promise<Array<PilotRequests>>;
 	getAllNotifications: (trackingArea: string, token: string) => Promise<Array<NotificationResponse>>;
 	getNotificationsByUserId: (userId: string, token: string, trackingArea: string) => Promise<Array<NotificationResponse>>;
+	insertNotification: (trackingArea: string, token: string, body: InsertNotificationPayload) => Promise<NotificationUpdateResponse>;
+	updateNotificationStatus: (trackingArea: string, token: string, notificationId: number, Body: UpdateNotificationStatusPayload) => Promise<NotificationUpdateResponse>;
 }
 
 export function useBackendActions(): useBackendActionsReturn {
@@ -93,7 +100,6 @@ export function useBackendActions(): useBackendActionsReturn {
 			throw { type: 'NETWORK_ERROR', message: 'Network error. Please try again later.' } as LoginError;
 		}
 	}, []);
-
 
 	// Function to handle registration
 	// The function takes a tracking area and a payload as arguments
@@ -230,6 +236,21 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const updatePilotById = useCallback(async (trackingArea: string, token: string, pilotId: string, body: PilotUpdatePayload) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.put(`/pilots/pilot/${pilotId}`, body), trackingArea);
+			if (response.status !== 200) {
+				console.log('Failed to update pilot details', response.status);
+				throw new Error('Failed to update pilot details');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	const getAllLeaveRequests = useCallback(async (trackingArea: string, token: string) => {
 		try {
 			const client = apiClientWithAuth(token); // Create an authenticated client
@@ -317,6 +338,36 @@ export function useBackendActions(): useBackendActionsReturn {
 		}
 	}, []);
 
+	const insertNotification = useCallback(async (trackingArea: string, token: string, body: InsertNotificationPayload) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.post(`/notifications/insert`, body), trackingArea);
+			if (response.status !== 201) {
+				console.log('Failed to insert notification', response.status);
+				throw new Error('Failed to insert notification');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
+	const updateNotificationStatus = useCallback(async (trackingArea: string, token: string, notificationId: number, body: UpdateNotificationStatusPayload) => {
+		try {
+			const client = apiClientWithAuth(token); // Create an authenticated client
+			const response = await trackPromise(client.put(`/notifications/update/${notificationId}`, body), trackingArea);
+			if (response.status !== 201) {
+				console.log('Failed to update notification status', response.status);
+				throw new Error('Failed to update notification status');
+			}
+			return response.data;
+		}
+		catch (error) {
+			handleApiError(error);
+		}
+	}, []);
+
 	return {
 		login,
 		register,
@@ -326,6 +377,7 @@ export function useBackendActions(): useBackendActionsReturn {
 		getFlightDetailsByPilotId,
 		getAllPilots,
 		getPilotById,
+		updatePilotById,
 		assignPilotToFlight,
 		leaveRequest,
 		updateLeaveRequest,
@@ -333,5 +385,7 @@ export function useBackendActions(): useBackendActionsReturn {
 		getLeaveRequestsByPilotId,
 		getAllNotifications,
 		getNotificationsByUserId,
+		insertNotification,
+		updateNotificationStatus,
 	}
 }

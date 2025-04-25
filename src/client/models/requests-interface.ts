@@ -18,6 +18,14 @@ export interface AssignPilotRequestBody {
     pilotId: number,
 }
 
+export interface PilotUpdatePayload {
+    license_no?: string;
+    license_specs?: string;
+    experience_in_yrs?: number;
+    role?: string;
+    hours_flown?: number;
+}
+
 export interface RequestLeavePayload {
     requestor_id: string,
     request_type: string,
@@ -37,4 +45,15 @@ export interface UpdatePilotRequestPayload {
     approver_id: number,
     status: string,
     approval_time: string,
+}
+
+export interface InsertNotificationPayload {
+    type: string; // e.g., "schedule_change", "request_update"
+    title: string;
+    message: string;
+    recipient_id?: number; // ID of the user receiving the notification
+    created_by: string; // ID of the user who created the notification
+}
+export interface UpdateNotificationStatusPayload {
+    status: string
 }

@@ -51,6 +51,7 @@ const SideBar = ({ onSelect, activePage }: Props) => {
 		{ id: 'schedule', label: 'Schedules' },
 		{ id: 'crew', label: 'Crew Management' },
 		{ id: 'history', label: 'Flight History' },
+		{ id: 'notifications', label: 'Notifications' },
 	];
 
 	const pilotMenuItems = [
