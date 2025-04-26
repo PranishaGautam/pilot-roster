@@ -212,7 +212,7 @@ const FlightCrewAvailabilityTable = () => {
                             <TableCell>Pilot ID</TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>Role</TableCell>
-                            <TableCell>Hours Flown</TableCell>
+                            {/* <TableCell>Hours Flown</TableCell> */}
                             <TableCell>Availability</TableCell>
                         </TableRow>
                     </TableHead>
@@ -256,9 +256,9 @@ const FlightCrewAvailabilityTable = () => {
                                                                 )
                                                             }
                                                         </TableCell>
-                                                        <TableCell>
+                                                        {/* <TableCell>
                                                             {pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}
-                                                        </TableCell>
+                                                        </TableCell> */}
                                                         <TableCell>
                                                             {pilot.status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                                         </TableCell>
