@@ -12,3 +12,4 @@ export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 export const MAX_PILOT_FLYING_HOURS = 110; // Maximum flying hours for a pilot in a month
+export const MIN_PILOT_FLYING_HOURS = 90; // Minimum flying hours for a pilot in a month

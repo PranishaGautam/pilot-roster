@@ -230,7 +230,7 @@ const FlightCrewAvailabilityTable = () => {
                                         pilotList.length === 0 ? (
                                             <TableRow>
                                                 <TableCell colSpan={5} style={{ textAlign: 'center' }}>
-                                                    No pilots available.
+                                                    No pilots found.
                                                 </TableCell>
                                             </TableRow>
                                         ) : (

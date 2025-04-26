@@ -17,10 +17,11 @@ import DisplayCard from '../DisplayCard';
 import Spinner from '../Spinner';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
+import commonStyles from '../../../styles/common.module.css';
 
 import { UpdatePilotRequestPayload } from '../../models/requests-interface';
 import { ScheduleTableData } from '../../models/schedule-interface';
-import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
+import { PilotResponse, PilotRequests } from '../../models/response-interface';
 
 import { useAuth } from '../../context/AuthContext';
 import isLoading from '../../hooks/isLoading';
@@ -51,7 +52,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             <DisplayCard
                 cardTitle={'Active Pilots'}
                 cardValue={activePilots}
-                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+                cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
             />
         )
     }, [pilotListProp]);
@@ -62,7 +63,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             <DisplayCard
                 cardTitle={'Scheduled Flights'}
                 cardValue={scheduledFlights}
-                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+                cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
             />
         );
     }, [scheduleDataProp]);
@@ -73,7 +74,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             <DisplayCard
                 cardTitle={'Total Flight Hours'}
                 cardValue={totalFlightHours}
-                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+                cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
             />
         )
     }, [pilotPerformanceData]);
@@ -257,20 +258,9 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             </section>
 
             <Modal open={isPerformanceModalOpen} onClose={() => setIsPerformanceModalOpen(false)} className={dashboardStyles.modal}>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '60vw',
-                        bgcolor: 'background.paper',
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                    }}
+                <Box 
+                    className={commonStyles.adminPilotPerformanceModal}
+                    sx={{  bgcolor: 'background.paper' }}
                 >
                     <div style={{ width: '100%' }}>
                         <div style={{ maxHeight: '600px', overflowY: 'auto', width: '100%' }}>

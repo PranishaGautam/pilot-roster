@@ -106,7 +106,7 @@ const FlightDistributionChart = () => {
 		const dailyFlightHours: Record<string, number> = {};
 
 		// Loop through scheduleData to compute daily flight hours.
-		scheduleData.forEach((schedule) => {
+		scheduleData.filter(schedule => schedule.status === 'COMPLETED').forEach((schedule) => {
 			// Convert departureTime & arrivalTime to Moment for calculations.
 			const departure = moment(schedule.departureTime, 'YYYY-MM-DD HH:mm:ss');
 			const arrival = moment(schedule.arrivalTime, 'YYYY-MM-DD HH:mm:ss');
