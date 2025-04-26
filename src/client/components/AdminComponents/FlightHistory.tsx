@@ -1,48 +1,19 @@
-import React, { useState, useContext, useMemo, useEffect } from 'react';
-import _, { set } from 'lodash';
+import { useState, useMemo, useEffect } from 'react';
+import _ from 'lodash';
 import moment from 'moment';
 
 import {
-    Box,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableFooter,
-    Paper,
-    TablePagination,
-    Toolbar,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    SelectChangeEvent,
-    IconButton,
-    Button,
+    Button
 } from '@mui/material';
 
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
-
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 
-import { useTheme } from '@mui/material/styles';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 
 import '@fontsource/roboto/300.css';
@@ -59,20 +30,26 @@ import { useAuth } from '../../context/AuthContext';
 import { FlightDetailQueryParams } from '../../models/requests-interface';
 import { FlightDetails } from '../../models/response-interface';
 import { ScheduleTableData } from '../../models/schedule-interface';
-import { TablePaginationActionsProps } from '../../models/table-pagination-interface';
-
-import { originOptions, destinationOptions, assignedOptions } from '../../utils/dropdownValues';
-
 
 
 const FlightHistory = () => {
 
-    const { token, role, pilotId, userId } = useAuth();
+    const { token } = useAuth();
 
-    const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
+    const { getFlightDetails } = useBackendActions();
     const { errorToast } = useToast();
 
     const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
+
+    const [visibleCount, setVisibleCount] = useState(10);
+
+    // Handler to increment how many flights to show
+    const loadMore = () => {
+        setVisibleCount((prev) => prev + 10);
+    };
+
+    // Slice the flight records to show only the current count
+    const visibleFlights = scheduleData.slice(0, visibleCount); 
 
     const getFlightDetailsData = async () => {
 
@@ -156,79 +133,87 @@ const FlightHistory = () => {
                             </div>
                         ) : (
                             <>
-                            {
-                                scheduleData.map((flight, index) => (
-                                    <Accordion defaultExpanded={false}>
-                                        <AccordionSummary
-                                            expandIcon={<ExpandMoreIcon />}
-                                            aria-controls="panel3-content"
-                                            id="panel3-header"
-                                            className={flightHistoryStyles.flightSummary}
-                                        >
-                                            <div className={flightHistoryStyles.flightItem}>
-                                                <div className={flightHistoryStyles.flightInfo}>
-                                                    <div className={flightHistoryStyles.flightDetailsLeft}>
-                                                        <div className={flightHistoryStyles.flightIcon}>
-                                                            <AirplanemodeActiveIcon className={flightHistoryStyles.flightIcon} />
+                                {
+                                    visibleFlights.map((flight, index) => (
+                                        <Accordion defaultExpanded={false} key={index}>
+                                            <AccordionSummary
+                                                expandIcon={<ExpandMoreIcon />}
+                                                aria-controls="panel3-content"
+                                                id="panel3-header"
+                                                className={flightHistoryStyles.flightSummary}
+                                            >
+                                                <div className={flightHistoryStyles.flightItem}>
+                                                    <div className={flightHistoryStyles.flightInfo}>
+                                                        <div className={flightHistoryStyles.flightDetailsLeft}>
+                                                            <div className={flightHistoryStyles.flightIcon}>
+                                                                <AirplanemodeActiveIcon className={flightHistoryStyles.flightIcon} />
+                                                            </div>
+                                                            <div className={flightHistoryStyles.flightRouteDetail}>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={16} fontWeight={500}>
+                                                                    {`Flight ${flight.flightNumber}`}
+                                                                </Typography>
+                                                                <Typography component="p" color={'textDisabled'} fontSize={14} fontWeight={400}>
+                                                                    {`${flight.origin} → ${flight.destination}`}
+                                                                </Typography>
+                                                            </div>
                                                         </div>
-                                                        <div className={flightHistoryStyles.flightRouteDetail}>
+                                                        <div className={flightHistoryStyles.flightDetailsRight}>
                                                             <Typography component="p" color={'textPrimary'} fontSize={16} fontWeight={500}>
-                                                                {`Flight ${flight.flightNumber}`}
+                                                                {moment(flight.departureTime).format('hh:mm A')}
                                                             </Typography>
                                                             <Typography component="p" color={'textDisabled'} fontSize={14} fontWeight={400}>
-                                                                {`${flight.origin} → ${flight.destination}`}
+                                                                {moment(flight.departureTime).format('MMM DD, YYYY')}
                                                             </Typography>
                                                         </div>
-                                                    </div>
-                                                    <div className={flightHistoryStyles.flightDetailsRight}>
-                                                        <Typography component="p" color={'textPrimary'} fontSize={16} fontWeight={500}>
-                                                            {moment(flight.departureTime).format('hh:mm A')}
-                                                        </Typography>
-                                                        <Typography component="p" color={'textDisabled'} fontSize={14} fontWeight={400}>
-                                                            {moment(flight.departureTime).format('MMM DD, YYYY')}
-                                                        </Typography>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </AccordionSummary>
-                                        <AccordionDetails>
-                                            <div className={flightHistoryStyles.flightDetails}>
-                                                <div className={flightHistoryStyles.flightDetailsOpenDiv}>
-                                                    <Typography component="h4" color={'textPrimary'} fontSize={16} fontWeight={500}>
-                                                        {'Flight Details'}
-                                                    </Typography>
+                                            </AccordionSummary>
+                                            <AccordionDetails>
+                                                <div className={flightHistoryStyles.flightDetails}>
+                                                    <div className={flightHistoryStyles.flightDetailsOpenDiv}>
+                                                        <Typography component="h4" color={'textPrimary'} fontSize={16} fontWeight={500}>
+                                                            {'Flight Details'}
+                                                        </Typography>
 
-                                                    <Divider></Divider>
+                                                        <Divider></Divider>
 
-                                                    <div className={flightHistoryStyles.flightDetailed}>
-                                                        <div className={flightHistoryStyles.flightSummary}>
-                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
-                                                                {`Flight Number: ${flight.flightNumber}`}
-                                                            </Typography>
-                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
-                                                                {`Departure: ${moment(flight.departureTime).format('hh:mm A')}`}
-                                                            </Typography>
-                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
-                                                                {`Arrival: ${moment(flight.arrivalTime).format('hh:mm A')}`}
-                                                            </Typography>
+                                                        <div className={flightHistoryStyles.flightDetailed}>
+                                                            <div className={flightHistoryStyles.flightSummary}>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                    {`Flight Number: ${flight.flightNumber}`}
+                                                                </Typography>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                    {`Departure: ${moment(flight.departureTime).format('hh:mm A')}`}
+                                                                </Typography>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                    {`Arrival: ${moment(flight.arrivalTime).format('hh:mm A')}`}
+                                                                </Typography>
+                                                            </div>
+
+                                                            <div className={flightHistoryStyles.PilotDetails}>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                    {`Pilot: ${flight?.pilot?.first_name} ${flight?.pilot?.last_name}`}
+                                                                </Typography>
+                                                                <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
+                                                                    {`Co-Pilot: ${flight?.coPilot?.first_name} ${flight?.coPilot?.last_name}`}
+                                                                </Typography>
+                                                            </div>
+                                                            
                                                         </div>
-
-                                                        <div className={flightHistoryStyles.PilotDetails}>
-                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
-                                                                {`Pilot: ${flight?.pilot?.first_name} ${flight?.pilot?.last_name}`}
-                                                            </Typography>
-                                                            <Typography component="p" color={'textPrimary'} fontSize={14} fontWeight={400}>
-                                                                {`Co-Pilot: ${flight?.coPilot?.first_name} ${flight?.coPilot?.last_name}`}
-                                                            </Typography>
-                                                        </div>
-                                                        
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </AccordionDetails>
-                                    </Accordion>
-                                ))
-                            }
+                                            </AccordionDetails>
+                                        </Accordion>
+                                    ))
+                                }
+                                {
+                                    visibleCount < scheduleData.length && (
+                                        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                                            <Button variant="contained" onClick={loadMore}>
+                                                Load More
+                                            </Button>
+                                        </div>
+                                )}
                             </>
                             
                         )
