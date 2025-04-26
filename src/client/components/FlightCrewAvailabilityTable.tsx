@@ -1,40 +1,40 @@
-import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 
 import {
     Box,
+    Button,
+    CircularProgress,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Modal,
+    Paper,
+    Select,
+    SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
-    Paper,
     TablePagination,
+    TableRow,
     Toolbar,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    SelectChangeEvent,
-    IconButton,
-    Button,
-    CircularProgress,
-    Modal,
 } from '@mui/material';
 
-import RefreshIcon from '@mui/icons-material/Refresh';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import flightcrewStyles from '../../styles/flightCrewTable.module.css';
 
-import { pilotRoleOptions, optionsOfAvailability } from '../utils/dropdownValues';
-import { useBackendActions } from '../hooks/callBackend';
-import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
+import { useBackendActions } from '../hooks/callBackend';
 import isLoading from '../hooks/isLoading';
-import { PilotResponse } from '../models/response-interface';
+import { useToast } from '../hooks/useToast';
 import { PilotUpdatePayload } from '../models/requests-interface';
+import { PilotResponse } from '../models/response-interface';
+import { optionsOfAvailability, pilotRoleOptions } from '../utils/dropdownValues';
 
 const FlightCrewAvailabilityTable = () => {
 

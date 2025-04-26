@@ -1,10 +1,9 @@
-import React from 'react';
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
 import MainLayout from './client/layouts/MainLayout';
 import Admin from './client/pages/Admin';
-import Pilot from './client/pages/Pilot';
 import LoginPage from './client/pages/LoginPage';
+import Pilot from './client/pages/Pilot';
 import RegisterPage from './client/pages/RegisterPage';
 
 const router = createBrowserRouter(

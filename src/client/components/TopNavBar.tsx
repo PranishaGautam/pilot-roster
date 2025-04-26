@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import _ from 'lodash'
+import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
 import dashboardStyles from '../../styles/dashboard.module.css';
 import { useAuth } from '../context/AuthContext';

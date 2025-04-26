@@ -1,5 +1,3 @@
-import React from 'react';
-
 import SchedulesTable from '../SchedulesTable';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';

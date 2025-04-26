@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import moment from 'moment';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
-	Home, Calendar, AlertCircle, CloudSun,
-	MessageCircle, LogOut, FileText, Settings
+	LogOut
 } from 'lucide-react';
 
 import ConnectingAirportsOutlinedIcon from '@mui/icons-material/ConnectingAirportsOutlined';
 
-import dashboardStyles from '../../../styles/dashboard.module.css'
+import dashboardStyles from '../../../styles/dashboard.module.css';
 
-import { useBackendActions } from '../../hooks/callBackend';
-import { useAuth } from '../../context/AuthContext';
-import { UserDetails } from '../../models/response-interface';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useBackendActions } from '../../hooks/callBackend';
+import { UserDetails } from '../../models/response-interface';
 
 interface Props {
 	onSelect: (page: string) => void;

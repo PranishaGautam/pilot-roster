@@ -1,26 +1,27 @@
 import axios from 'axios';
-import { trackPromise } from 'react-promise-tracker';
 import { useCallback } from 'react';
+import { trackPromise } from 'react-promise-tracker';
 
-import { 
+import {
 	AssignPilotRequestBody,
-	FlightDetailQueryParams, 
-	PilotDetailQueryParams,
-	UpdatePilotRequestPayload,
-	PilotUpdatePayload,
+	FlightDetailQueryParams,
 	InsertNotificationPayload,
+	PilotDetailQueryParams,
+	PilotUpdatePayload,
 	UpdateNotificationStatusPayload,
+	UpdatePilotRequestPayload,
 } from '../models/requests-interface';
 
-import { 
-	LoginResponse, LoginError,
-	RegisterResponse, 
-	UserDetails,
+import {
 	FlightDetails,
-	PilotResponse,
-	PilotRequests,
+	LoginError,
+	LoginResponse,
 	NotificationResponse,
 	NotificationUpdateResponse,
+	PilotRequests,
+	PilotResponse,
+	RegisterResponse,
+	UserDetails,
 } from '../models/response-interface';
 
 // Base URL for the backend API

@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
 import moment from 'moment';
-import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
 import { CircularProgress } from '@mui/material';
 import { LineChart } from '@mui/x-charts/LineChart';
@@ -8,10 +7,10 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import dashboardStyles from './../../styles/dashboard.module.css';
 
 import { useAuth } from '../context/AuthContext';
-import isLoading from './../hooks/isLoading';
 import { useBackendActions } from './../hooks/callBackend';
-import { FlightDetails } from './../models/response-interface';
+import isLoading from './../hooks/isLoading';
 import { useToast } from './../hooks/useToast';
+import { FlightDetails } from './../models/response-interface';
 import { ScheduleTableData } from './../models/schedule-interface';
 
 const FlightDistributionChart = () => {

@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Button, Modal, Divider, Typography, Box, TextField } from '@mui/material';
+import { Box, Button, Divider, Modal, TextField, Typography } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
@@ -12,11 +11,11 @@ import Spinner from '../Spinner';
 import pilotStyles from '../../../styles/pilotpage.module.css';
 
 import { useAuth } from '../../context/AuthContext';
-import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
-import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
+import isLoading from '../../hooks/isLoading';
 import { useToast } from '../../hooks/useToast';
-import { RequestLeavePayload, UpdatePilotRequestPayload, UpdateRequestPayload } from '../../models/requests-interface';
+import { RequestLeavePayload } from '../../models/requests-interface';
+import { PilotRequests } from '../../models/response-interface';
 
 const Requests = () => {
 

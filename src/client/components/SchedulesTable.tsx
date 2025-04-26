@@ -1,40 +1,39 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import _ from 'lodash';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 
 import {
 	Box,
+	Button,
+	FormControl,
+	IconButton,
+	InputLabel,
+	MenuItem,
+	Paper,
+	Select,
+	SelectChangeEvent,
 	Table,
 	TableBody,
 	TableCell,
 	TableContainer,
-	TableHead,
-	TableRow,
 	TableFooter,
-	Paper,
+	TableHead,
 	TablePagination,
+	TableRow,
 	Toolbar,
-	FormControl,
-	InputLabel,
-	Select,
-	MenuItem,
-	SelectChangeEvent,
-	IconButton,
-	Button,
 } from '@mui/material';
 
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
 
-import { useTheme } from '@mui/material/styles';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { useTheme } from '@mui/material/styles';
 
 import PilotListModal from './PilotListModal';
 
@@ -45,12 +44,12 @@ import { FlightDetails } from '../models/response-interface';
 import { ScheduleTableData } from '../models/schedule-interface';
 import { TablePaginationActionsProps } from '../models/table-pagination-interface';
 
-import isLoading from '../hooks/isLoading';
-import { useBackendActions } from '../hooks/callBackend';
-import { useToast } from '../hooks/useToast';
 import { useAuth } from '../context/AuthContext';
+import { useBackendActions } from '../hooks/callBackend';
+import isLoading from '../hooks/isLoading';
+import { useToast } from '../hooks/useToast';
 
-import { originOptions, destinationOptions, assignedOptions } from '../utils/dropdownValues';
+import { assignedOptions, destinationOptions, originOptions } from '../utils/dropdownValues';
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
 	const theme = useTheme();

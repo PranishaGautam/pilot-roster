@@ -1,6 +1,6 @@
-import React from 'react';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
+import React from 'react';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 	height: 10,

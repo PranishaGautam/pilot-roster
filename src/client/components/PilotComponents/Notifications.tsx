@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import _, { set } from 'lodash';
+import { useEffect, useState } from 'react';
 
-import { TextField, FormControl, InputLabel, Select, MenuItem, Switch, FormControlLabel } from '@mui/material';
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
 import Spinner from '../Spinner';
 
 import pilotStyles from '../../../styles/pilotpage.module.css';
 
-import { useAuth } from '../../context/AuthContext';
-import isLoading from '../../hooks/isLoading';
-import { useBackendActions } from '../../hooks/callBackend';
-import { NotificationResponse, UserDetails } from '../../models/response-interface';
-import { InsertNotificationPayload, UpdateNotificationStatusPayload } from '../../models/requests-interface'
-import { useToast } from '../../hooks/useToast';
 import { Box, Button, Modal, Typography } from '@mui/material';
+import { useAuth } from '../../context/AuthContext';
+import { useBackendActions } from '../../hooks/callBackend';
+import isLoading from '../../hooks/isLoading';
+import { useToast } from '../../hooks/useToast';
+import { InsertNotificationPayload } from '../../models/requests-interface';
+import { NotificationResponse, UserDetails } from '../../models/response-interface';
 import { notificationTypes } from '../../utils/dropdownValues';
 
 const toShowNotificationNoOfDays = 2;

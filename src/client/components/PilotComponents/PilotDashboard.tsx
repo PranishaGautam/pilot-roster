@@ -1,23 +1,22 @@
-import { useEffect, useMemo, useState } from 'react'
 import moment from 'moment';
-import _ from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Box, Button, Modal } from '@mui/material';
 
-import Spinner from '../Spinner';
-import SchedulesTable from '../SchedulesTable';
 import DisplayCard from '../DisplayCard';
 import FlightDistributionChart from '../FlightDistributionChart';
 import PerformanceBar from '../PerformanceBar';
+import SchedulesTable from '../SchedulesTable';
+import Spinner from '../Spinner';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
 
-import { ScheduleTableData } from '../../models/schedule-interface';
 import { FlightDetails } from '../../models/response-interface';
+import { ScheduleTableData } from '../../models/schedule-interface';
 
 import { useAuth } from '../../context/AuthContext';
-import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
+import isLoading from '../../hooks/isLoading';
 
 import { useToast } from '../../hooks/useToast';
 import { MAX_PILOT_FLYING_HOURS } from '../../utils/constants';

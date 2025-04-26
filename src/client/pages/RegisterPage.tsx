@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Link, Alert, TextField } from '@mui/material';
+import { Alert, Button, Link, TextField } from '@mui/material';
 import Spinner from '../components/Spinner';
 
 import paperPlanes from '../../assets/plane2.avif';
 import registerStyles from '../../styles/register.module.css';
 
-import { LOGIN_PAGE_LINK } from '../utils/constants';
 import { useBackendActions } from '../hooks/callBackend';
 import useLoading from '../hooks/isLoading';
 import { useToast } from '../hooks/useToast';
+import { LOGIN_PAGE_LINK } from '../utils/constants';
 
 const RegisterPage = () => {
 	const navigate = useNavigate();
