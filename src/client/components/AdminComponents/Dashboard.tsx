@@ -26,6 +26,9 @@ import { useAuth } from '../../context/AuthContext';
 import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
 import { useToast } from '../../hooks/useToast';
+import { MAX_PILOT_FLYING_HOURS } from '../../utils/constants';
+import PerformanceBar from '../PerformanceBar';
+import { Box, Modal } from '@mui/material';
 
 interface Props {
     scheduleDataProp: Array<ScheduleTableData>;
@@ -34,47 +37,76 @@ interface Props {
 }
 
 const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Props) => {
-    
-    const cardDisplayContents = [
-		{
-			title: 'Active Pilots',
-			value: 223,
-			percentageIndicator: 'positive',
-			percentageChange: '12',
-			date: '2025-04-01 10:00:00',
-		},
-		{
-			title: 'Scheduled Flights',
-			value: 1387,
-			percentageIndicator: 'positive',
-			percentageChange: '12',
-			date: '2025-04-01 10:00:00',
-		},
-		{
-			title: 'Flight Hours',
-			value: 14578,
-			percentageIndicator: 'negative',
-			percentageChange: '4',
-			date: '2025-04-01 10:00:00',
-		},
-		{
-			title: 'On-Time Rate',
-			value: 14,
-			percentageIndicator: 'positive',
-			percentageChange: '2',
-			date: '2025-04-01 10:00:00',
-		},
-	]
 
     const { token, userId } = useAuth();
-    const { getAllPilots, getAllLeaveRequests, updateLeaveRequest, getFlightDetails } = useBackendActions();
+    const { getAllLeaveRequests, updateLeaveRequest } = useBackendActions();
     const { successToast, errorToast } = useToast();
 
-    const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
+    const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
+
+    const activePilots = useMemo(() => {
+        const activePilots =  pilotListProp.filter((pilot) => pilot.status.toLowerCase() !== 'time off').length;
+
+        return (
+            <DisplayCard
+                cardTitle={'Active Pilots'}
+                cardValue={activePilots}
+                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+            />
+        )
+    }, [pilotListProp]);
+
+    const scheduledFlights = useMemo(() => {
+        const scheduledFlights = scheduleDataProp.filter((flight) => flight.status.toLowerCase() === 'scheduled').length;
+        return (
+            <DisplayCard
+                cardTitle={'Scheduled Flights'}
+                cardValue={scheduledFlights}
+                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+            />
+        );
+    }, [scheduleDataProp]);
+
+    const flightHours = useMemo(() => {
+        const totalFlightHours = pilotPerformanceData.reduce((acc, pilot) => acc + pilot.flyingHours, 0);
+        return (
+            <DisplayCard
+                cardTitle={'Total Flight Hours'}
+                cardValue={totalFlightHours}
+                cardDate={moment().format('YYYY-MM HH:mm:ss')}
+            />
+        )
+    }, [pilotPerformanceData]);
+
+    const pilotCrewPerformance = useMemo(() => {
+        const totalFlightHours = pilotPerformanceData.reduce((acc, pilot) => acc + pilot.flyingHours, 0);
+
+        const totalPilots = pilotPerformanceData.length;
+        const totalPilotMaxHours = totalPilots * MAX_PILOT_FLYING_HOURS;
+
+        const crewPerformance = (totalFlightHours / totalPilotMaxHours) * 100;
+
+        return (
+            <DisplayCard
+                cardTitle={'Pilot Crew Performance'}
+                cardValue={`${crewPerformance.toFixed(2)}%`}
+                content={
+                    <>
+                        <div className={dashboardStyles.progressBarContainer}>
+                            <PerformanceBar value={crewPerformance} />
+                            <span className={dashboardStyles.activityCardDate}>{moment().format('MMMM, YYYY')}</span>
+                        </div>
+                        <Button size={'small'} variant='text' onClick={() => setIsPerformanceModalOpen(true)}>{'View Details'}</Button>
+                    </>
+                }
+            />
+        );   
+    }, [pilotPerformanceData]);
+
     const [requests, setRequests] = useState<Array<PilotRequests>>([]);
 
     const pilotStats = useMemo(() => {
-        return pilotList.reduce((acc, pilot) => {
+        return pilotListProp.reduce((acc, pilot) => {
             const status = pilot.status.toLowerCase();
             if (!acc[status]) {
             acc[status] = 0;
@@ -82,68 +114,11 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             acc[status]++;
             return acc;
         }, {} as Record<string, number>);
-    }, [pilotList]);
+    }, [pilotListProp]);
 
     const pendingRequests = useMemo(() => {
         return requests.filter(request => request.status.toLowerCase() === 'pending');
     },[requests]);
-
-    const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
-    
-    const getFlightDetailsData = async () => {
-        if (token) {
-            // Call the backend API with the selected parameters
-            getFlightDetails('schedules-area', token)
-            .then((response) => {
-                if (response.length === 0) {
-                    errorToast('No schedules found for the selected criteria.');
-                    setScheduleData([]);
-                } else {
-                    const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
-
-                        const assignedPilot = schedule?.pilots?.pilot ?? null;
-                        const assignedCoPilot = schedule?.pilots?.co_pilot ?? null;
-
-                        return {
-                            scheduleId: schedule.schedule.schedule_id,
-                            flightNumber: schedule.schedule.flight_number,
-                            origin: schedule.schedule.origin,
-                            destination: schedule.schedule.destination,
-                            departureTime: moment(schedule.schedule.start_time).format('YYYY-MM-DD HH:mm:ss'),
-                            arrivalTime: moment(schedule.schedule.end_time).format('YYYY-MM-DD HH:mm:ss'),
-                            status: schedule.schedule.status,
-                            pilot: assignedPilot ?? null,
-                            coPilot: assignedCoPilot ?? null
-                        }
-                    });
-                    setScheduleData(formattedSchedules);
-                }
-            })
-            .catch((error) => {
-                console.error('Error fetching flight details:', error);
-                errorToast('Error fetching flight details. Please try again.');
-                setScheduleData([]);
-            });
-        } else {
-            errorToast('Authentication token is missing. Please log in again.');
-        }
-    }
-
-    const getPilots = () => {
-        if (token) {
-            getAllPilots('pilot-area', token)
-                .then((data) => {
-                    // successToast('Pilots fetched successfully!');
-                    console.log('Fetched pilots:', data);
-                    setPilotList(data);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        } else {
-            console.log('No token found!');
-        }
-    };
 
     const getAllRequests = () => {
         if (token) {
@@ -187,9 +162,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     }
 
     useEffect(() => {
-        getPilots();
         getAllRequests();
-        getFlightDetailsData();
     }, []);
 
     const updatingLeaveRequest = isLoading('update-leave-request');
@@ -208,16 +181,10 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             <section className={dashboardStyles.activitySection}>
                 <h2 className={dashboardStyles.sectionTitle}>Activity</h2>
                 <div className={dashboardStyles.activityCards}>
-                    {cardDisplayContents.map((content, index) => (
-                        <DisplayCard 
-                            key={index}
-                            cardTitle={content.title} 
-                            cardValue={content.value} 
-                            percentageIndicator={content.percentageIndicator} 
-                            percentageChange={content.percentageChange} 
-                            cardDate={content.date}						
-                        />
-                    ))}
+                    {activePilots}
+                    {scheduledFlights}
+                    {flightHours}
+                    {pilotCrewPerformance}
                 </div>
             </section>
 
@@ -288,6 +255,86 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
                     )}
                 </div>
             </section>
+
+            <Modal open={isPerformanceModalOpen} onClose={() => setIsPerformanceModalOpen(false)} className={dashboardStyles.modal}>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '60vw',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div style={{ width: '100%' }}>
+                        <div style={{ maxHeight: '600px', overflowY: 'auto', width: '100%' }}>
+                            {pilotListProp.map((pilot, index) => {
+                                const flyingHours = pilotPerformanceData.find(p => p.pilotId === pilot.pilot_id.toLocaleString())?.flyingHours || 0;
+                                const performancePercentage = (flyingHours / MAX_PILOT_FLYING_HOURS) * 100;
+
+                                return (
+                                    <div
+                                        key={pilot.pilot_id}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            padding: '10px',
+                                            borderBottom: '1px solid #ddd',
+                                            borderRadius: '5px',
+                                            backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff',
+                                            marginBottom: '10px',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography
+                                                variant="body1"
+                                                style={{
+                                                    marginRight: '15px',
+                                                    fontWeight: 'bold',
+                                                    color: '#333',
+                                                }}
+                                            >
+                                                {index + 1}.
+                                            </Typography>
+                                            <Typography
+                                                variant="body1"
+                                                style={{
+                                                    marginRight: '15px',
+                                                    fontWeight: '500',
+                                                    color: '#555',
+                                                }}
+                                            >
+                                                {`${_.capitalize(pilot.first_name)} ${_.capitalize(pilot.last_name)}`}
+                                            </Typography>
+                                        </div>
+                                        <div style={{ flex: 1, marginLeft: '15px' }}>
+                                            <PerformanceBar value={performancePercentage} />
+                                        </div>
+                                        <Typography
+                                            variant="body2"
+                                            style={{
+                                                marginLeft: '15px',
+                                                fontWeight: '500',
+                                                color: performancePercentage > 75 ? '#4caf50' : performancePercentage > 50 ? '#ff9800' : '#f44336',
+                                            }}
+                                        >
+                                            {`${flyingHours} hrs`}
+                                        </Typography>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <Button variant='contained' onClick={() => setIsPerformanceModalOpen(false)}>{'Close'}</Button>
+                    </div>
+                </Box>
+            </Modal>
         </>
     )
 }

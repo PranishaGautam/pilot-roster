@@ -113,7 +113,11 @@ const Admin = () => {
 			}
 		});
 
-		return Object.entries(performanceData).map(([pilotId, flyingHours]) => ({
+		const sortedPerformanceData = Object.fromEntries(
+			Object.entries(performanceData).sort(([, a], [, b]) => b - a)
+		);
+
+		return Object.entries(sortedPerformanceData).map(([pilotId, flyingHours]) => ({
 			pilotId,
 			flyingHours,
 		}));

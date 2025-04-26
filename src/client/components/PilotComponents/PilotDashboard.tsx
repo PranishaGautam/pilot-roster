@@ -3,29 +3,28 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import { Box, Button, Modal } from '@mui/material';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
 
 import Spinner from '../Spinner';
 import SchedulesTable from '../SchedulesTable';
 import DisplayCard from '../DisplayCard';
 import FlightDistributionChart from '../FlightDistributionChart';
+import PerformanceBar from '../PerformanceBar';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
+
+import { ScheduleTableData } from '../../models/schedule-interface';
+import { FlightDetails } from '../../models/response-interface';
 
 import { useAuth } from '../../context/AuthContext';
 import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
-import { FlightDetails } from '../../models/response-interface';
+
 import { useToast } from '../../hooks/useToast';
-
-import { ScheduleTableData } from '../../models/schedule-interface';
-
-const targetFliyingHours = 110; //  Target flying hours
+import { MAX_PILOT_FLYING_HOURS } from '../../utils/constants';
 
 const PilotDashboard = () => {
 
-    const { token, userId, role, pilotId } = useAuth();
+    const { token, pilotId } = useAuth();
     const { getFlightDetailsByPilotId } = useBackendActions();
     const { errorToast } = useToast();
 
@@ -117,15 +116,15 @@ const PilotDashboard = () => {
     }, [scheduleData]);
 
     const performance = useMemo(() => {
-        const performancePercentage = (monthlyFlightHours / targetFliyingHours) * 100
+        const performancePercentage = (monthlyFlightHours / MAX_PILOT_FLYING_HOURS) * 100
         return {
             title: 'Performance',
             value: `${performancePercentage.toPrecision(2)}%`,
             content: (
-            <div className={dashboardStyles.progressBarContainer}>
-                <BorderLinearProgress variant="determinate" value={performancePercentage} />
-                <span className={dashboardStyles.progressBarText}>{moment().format('MMMM, YYYY')}</span>
-            </div>
+                <div className={dashboardStyles.progressBarContainer}>
+                    <PerformanceBar value={performancePercentage} />
+                    <span className={dashboardStyles.progressBarText}>{moment().format('MMMM, YYYY')}</span>
+                </div>
             )
         };
     }, [monthlyFlightHours]);
@@ -133,7 +132,7 @@ const PilotDashboard = () => {
     const totalFlightHours = useMemo(() => {
         return {
             title: 'Total Flight Hours',
-            value: monthlyFlightHours,
+            value: `${monthlyFlightHours} hours`,
             date: moment().startOf('month').format('YYYY-MM-DD HH:mm:ss'),
         };
     }, [monthlyFlightHours]);
@@ -231,21 +230,3 @@ const PilotDashboard = () => {
 }
 
 export default PilotDashboard;
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-    height: 10,
-    borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-      backgroundColor: theme.palette.grey[200],
-      ...theme.applyStyles('dark', {
-        backgroundColor: theme.palette.grey[800],
-      }),
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-      borderRadius: 5,
-      backgroundColor: '#1a90ff',
-      ...theme.applyStyles('dark', {
-        backgroundColor: '#308fe8',
-      }),
-    },
-}));
