@@ -11,22 +11,29 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Button from '@mui/material/Button';
 
-import { LineChart } from '@mui/x-charts/LineChart';
+import FlightDistributionChart from '../FlightDistributionChart';
+import DisplayCard from '../DisplayCard';
 
 import Spinner from '../Spinner';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
-import DisplayCard from '../DisplayCard';
+
+import { UpdatePilotRequestPayload } from '../../models/requests-interface';
+import { ScheduleTableData } from '../../models/schedule-interface';
+import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
+
 import { useAuth } from '../../context/AuthContext';
 import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
-import { PilotResponse, PilotRequests, FlightDetails } from '../../models/response-interface';
 import { useToast } from '../../hooks/useToast';
-import { UpdatePilotRequestPayload, UpdateRequestPayload } from '../../models/requests-interface';
-import { ScheduleTableData } from '../../models/schedule-interface';
-import FlightDistributionChart from '../FlightDistributionChart';
 
-const Dashboard = () => {
+interface Props {
+    scheduleDataProp: Array<ScheduleTableData>;
+    pilotListProp: Array<PilotResponse>;
+    pilotPerformanceData: {pilotId: string, flyingHours: number}[];
+}
+
+const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Props) => {
     
     const cardDisplayContents = [
 		{
@@ -60,9 +67,7 @@ const Dashboard = () => {
 	]
 
     const { token, userId } = useAuth();
-
     const { getAllPilots, getAllLeaveRequests, updateLeaveRequest, getFlightDetails } = useBackendActions();
-
     const { successToast, errorToast } = useToast();
 
     const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);

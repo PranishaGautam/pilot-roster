@@ -284,46 +284,44 @@ const FlightCrewAvailabilityTable = () => {
                 />
             </TableContainer>
             {/* Edit Modal */}
-            {
-                <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className={flightcrewStyles.modal}>
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: 'fit-content',
-                            bgcolor: 'background.paper',
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
-                            <InputLabel id="simple-select-label-role">Role</InputLabel>
-                            <Select
-                                labelId="simple-select-label-role"
-                                id="simple-select-small"
-                                value={pilotRole}
-                                label="Role"
-                                onChange={(event) => setPilotRole(event.target.value)}
-                                autoWidth
-                                size='small'
-                            >
-                                {pilotRoleOptions.map((option, index) => (
-                                    <MenuItem key={index} value={option.value}>
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                                
-                            </Select>
-                        </FormControl>
-                        <Button variant='contained' onClick={() => handleUpdatePilotDetails('role', pilotRole, selectedPilot?.pilot_id)}>Save</Button>
-                    </Box>
-                </Modal>
-            }
+            <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className={flightcrewStyles.modal}>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 'fit-content',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <FormControl sx={{ m: 1, minWidth: 200 }} size="small">
+                        <InputLabel id="simple-select-label-role">Role</InputLabel>
+                        <Select
+                            labelId="simple-select-label-role"
+                            id="simple-select-small"
+                            value={pilotRole}
+                            label="Role"
+                            onChange={(event) => setPilotRole(event.target.value)}
+                            autoWidth
+                            size='small'
+                        >
+                            {pilotRoleOptions.map((option, index) => (
+                                <MenuItem key={index} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                            
+                        </Select>
+                    </FormControl>
+                    <Button variant='contained' onClick={() => handleUpdatePilotDetails('role', pilotRole, selectedPilot?.pilot_id)}>Save</Button>
+                </Box>
+            </Modal>
         </Box>
     );
 };
