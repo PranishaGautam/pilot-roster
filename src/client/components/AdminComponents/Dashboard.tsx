@@ -1,35 +1,35 @@
-import { useEffect, useMemo, useState } from 'react'
 import Badge from '@mui/material/Badge';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
+import { useEffect, useMemo, useState } from 'react';
 
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
-import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
-import FlightDistributionChart from '../FlightDistributionChart';
 import DisplayCard from '../DisplayCard';
+import FlightDistributionChart from '../FlightDistributionChart';
 
 import Spinner from '../Spinner';
 
-import dashboardStyles from '../../../styles/dashboard.module.css';
 import commonStyles from '../../../styles/common.module.css';
+import dashboardStyles from '../../../styles/dashboard.module.css';
 
 import { UpdatePilotRequestPayload } from '../../models/requests-interface';
+import { PilotRequests, PilotResponse } from '../../models/response-interface';
 import { ScheduleTableData } from '../../models/schedule-interface';
-import { PilotResponse, PilotRequests } from '../../models/response-interface';
 
+import { Box, Modal } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
-import isLoading from '../../hooks/isLoading';
 import { useBackendActions } from '../../hooks/callBackend';
+import isLoading from '../../hooks/isLoading';
 import { useToast } from '../../hooks/useToast';
 import { MAX_PILOT_FLYING_HOURS } from '../../utils/constants';
 import PerformanceBar from '../PerformanceBar';
-import { Box, Modal } from '@mui/material';
 
 interface Props {
     scheduleDataProp: Array<ScheduleTableData>;

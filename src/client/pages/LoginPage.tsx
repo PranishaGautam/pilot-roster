@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Link, Button, Alert, TextField, InputAdornment } from '@mui/material';
-import PasswordOutlinedIcon from '@mui/icons-material/PasswordOutlined';
 import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
+import PasswordOutlinedIcon from '@mui/icons-material/PasswordOutlined';
+import { Alert, Button, InputAdornment, Link, TextField } from '@mui/material';
 import Spinner from '../components/Spinner';
 
 import planeImage from '../../assets/plane1.jpg';
@@ -14,8 +14,8 @@ import { useBackendActions } from '../hooks/callBackend';
 import isLoading from '../hooks/isLoading';
 import { useToast } from '../hooks/useToast';
 
-import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
 import { LoginResponse } from '../models/response-interface';
+import { emailRegex, REGISTER_PAGE_LINK } from '../utils/constants';
 
 const LoginPage = () => {
 

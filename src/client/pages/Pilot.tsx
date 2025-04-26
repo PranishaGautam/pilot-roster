@@ -1,21 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Sidebar from '../components/AdminComponents/SideBar';
-import TopNavBar from '../components/TopNavBar';
-import Requests from '../components/PilotComponents/Requests';
 import Notifications from '../components/PilotComponents/Notifications';
 import PilotDashboard from '../components/PilotComponents/PilotDashboard';
+import Requests from '../components/PilotComponents/Requests';
+import TopNavBar from '../components/TopNavBar';
 
 import dashboardStyles from '../../styles/dashboard.module.css';
 
-import { useAuth } from '../context/AuthContext';
-
-
 const Pilot = () => {
-
-	const { token, userId, role, pilotId } = useAuth();
-	const navigate = useNavigate();
 
 	const [activePage, setActivePage] = useState('dashboard');
 	

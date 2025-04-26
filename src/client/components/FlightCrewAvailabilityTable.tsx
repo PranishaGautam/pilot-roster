@@ -35,7 +35,6 @@ import { useAuth } from '../context/AuthContext';
 import isLoading from '../hooks/isLoading';
 import { PilotResponse } from '../models/response-interface';
 import { PilotUpdatePayload } from '../models/requests-interface';
-import Spinner from './Spinner';
 
 const FlightCrewAvailabilityTable = () => {
 

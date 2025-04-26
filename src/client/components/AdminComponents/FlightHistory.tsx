@@ -1,16 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
-import _ from 'lodash';
 import moment from 'moment';
+import { useEffect, useState } from 'react';
 
 import {
     Button
 } from '@mui/material';
 
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
 
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
 
@@ -22,10 +21,10 @@ import Spinner from '../Spinner';
 
 import flightHistoryStyles from '../../../styles/flightHistory.module.css';
 
-import isLoading from '../../hooks/isLoading';
-import { useBackendActions } from '../../hooks/callBackend';
-import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../context/AuthContext';
+import { useBackendActions } from '../../hooks/callBackend';
+import isLoading from '../../hooks/isLoading';
+import { useToast } from '../../hooks/useToast';
 
 import { FlightDetailQueryParams } from '../../models/requests-interface';
 import { FlightDetails } from '../../models/response-interface';

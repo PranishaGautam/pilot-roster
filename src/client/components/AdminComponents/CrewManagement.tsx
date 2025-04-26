@@ -1,5 +1,3 @@
-import React from 'react';
-
 import FlightCrewAvailabilityTable from '../FlightCrewAvailabilityTable';
 
 import dashboardStyles from '../../../styles/dashboard.module.css';
