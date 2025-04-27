@@ -59,7 +59,7 @@ const PilotDashboard = () => {
         getFlightDetailsByPilotId('pilot-schedules-area', token, pilotId)
         .then((response) => {
             if (response.length === 0) {
-                errorToast('No schedules found for the pilot');
+                // errorToast('No schedules found for the pilot');
                 setScheduleData([]);
             } else {
                 const formattedSchedules: ScheduleTableData[] = response.map((schedule: FlightDetails) => {
@@ -83,8 +83,8 @@ const PilotDashboard = () => {
             }
         })
         .catch((error) => {
-            console.error('Error fetching flight details:', error);
-            errorToast('Error fetching flight details. Please try again.');
+            // console.error('Error fetching flight details:', error);
+            // errorToast('Error fetching flight details. Please try again.');
             setScheduleData([]);
         });
     }

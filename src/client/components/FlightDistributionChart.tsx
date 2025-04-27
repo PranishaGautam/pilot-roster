@@ -87,8 +87,8 @@ const FlightDistributionChart = () => {
 					}
 				})
 				.catch((error) => {
-					console.error('Error fetching flight details:', error);
-					errorToast('Error fetching flight details. Please try again.');
+					// console.error('Error fetching flight details:', error);
+					// errorToast('Error fetching flight details. Please try again.');
 					setScheduleData([]);
 				});
 			}

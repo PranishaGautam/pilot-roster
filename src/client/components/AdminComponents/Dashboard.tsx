@@ -46,7 +46,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
 
     const activePilots = useMemo(() => {
-        const activePilots =  pilotListProp.filter((pilot) => pilot.status.toLowerCase() !== 'time off').length;
+        const activePilots =  pilotListProp.filter((pilot) => pilot.status?.toLowerCase() !== 'time off').length;
 
         return (
             <DisplayCard
@@ -58,7 +58,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     }, [pilotListProp]);
 
     const scheduledFlights = useMemo(() => {
-        const scheduledFlights = scheduleDataProp.filter((flight) => flight.status.toLowerCase() === 'scheduled').length;
+        const scheduledFlights = scheduleDataProp.filter((flight) => flight.status?.toLowerCase() === 'scheduled').length;
         return (
             <DisplayCard
                 cardTitle={'Scheduled Flights'}
@@ -107,10 +107,10 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     const [requests, setRequests] = useState<Array<PilotRequests>>([]);
 
     const pilotStats = useMemo(() => {
-        return pilotListProp.reduce((acc, pilot) => {
+        return pilotListProp.filter(pilot => pilot?.status).reduce((acc, pilot) => {
             const status = pilot.status.toLowerCase();
             if (!acc[status]) {
-            acc[status] = 0;
+                acc[status] = 0;
             }
             acc[status]++;
             return acc;
@@ -118,7 +118,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     }, [pilotListProp]);
 
     const pendingRequests = useMemo(() => {
-        return requests.filter(request => request.status.toLowerCase() === 'pending');
+        return requests.filter(request => request.status?.toLowerCase() === 'pending');
     },[requests]);
 
     const getAllRequests = () => {

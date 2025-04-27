@@ -259,7 +259,7 @@ const FlightCrewAvailabilityTable = () => {
                                                             {pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}
                                                         </TableCell> */}
                                                         <TableCell>
-                                                            {pilot.status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                                            {pilot.status?.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
