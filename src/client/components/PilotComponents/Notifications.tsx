@@ -66,7 +66,7 @@ const Notifications = () => {
 	}
 
 	const handleNotify = () => {
-		if (!title || !description || !notificationType || !selectedUserId) {
+		if (!title || !description || !notificationType) {
 			errorToast('Please fill out all fields.');
 			return;
 		}
