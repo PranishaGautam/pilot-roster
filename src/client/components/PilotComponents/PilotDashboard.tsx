@@ -93,7 +93,7 @@ const PilotDashboard = () => {
         if (!nextSchedule) {
             return {
                 title: 'Next Duty',
-                value: 'No upcoming flights assigned'
+                value: 'No flights assigned'
             }
         }
         return {

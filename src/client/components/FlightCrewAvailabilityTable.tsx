@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import moment from 'moment';
 
 import {
     Box,
@@ -24,7 +25,6 @@ import {
 } from '@mui/material';
 
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import RefreshIcon from '@mui/icons-material/Refresh';
 
 import flightcrewStyles from '../../styles/flightCrewTable.module.css';
 
@@ -33,13 +33,19 @@ import { useBackendActions } from '../hooks/callBackend';
 import isLoading from '../hooks/isLoading';
 import { useToast } from '../hooks/useToast';
 import { PilotUpdatePayload } from '../models/requests-interface';
-import { PilotResponse } from '../models/response-interface';
+import { PilotRequests, PilotResponse } from '../models/response-interface';
 import { optionsOfAvailability, pilotRoleOptions } from '../utils/dropdownValues';
+import { ScheduleTableData } from '../models/schedule-interface';
 
-const FlightCrewAvailabilityTable = () => {
+interface Props {
+    scheduleDataProp: Array<ScheduleTableData>;
+    pilotListProp: Array<PilotResponse>;
+}
+
+const FlightCrewAvailabilityTable = ({ scheduleDataProp, pilotListProp }: Props) => {
 
     const { token } = useAuth();
-    const { getAllPilots, updatePilotById } = useBackendActions();
+    const { getAllPilots, updatePilotById, getAllLeaveRequests } = useBackendActions();
     const { successToast, errorToast } = useToast();
 
     const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
@@ -51,6 +57,72 @@ const FlightCrewAvailabilityTable = () => {
     const [selectedPilot, setSelectedPilot] = useState<PilotResponse>();
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const inFlightPilots = useMemo(() => {
+        const today = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        const inFlightSchedules = scheduleDataProp.filter(flight => {
+            const startTime = moment(flight.departureTime);
+            const endTime = moment(flight.arrivalTime);
+            return moment(today).isBetween(startTime, endTime, 'hour', '[]');
+        });
+
+        const uniquePilotIds = Array.from(
+            new Set(
+                inFlightSchedules.flatMap(schedule => [
+                    schedule.pilot?.pilot_id,
+                    schedule.coPilot?.pilot_id
+                ])
+            )
+        );
+        return uniquePilotIds;
+    }, [scheduleDataProp]);
+
+    const [requests, setRequests] = useState<Array<PilotRequests>>([]);
+
+    const getAllRequests = () => {
+        if (token) {
+            getAllLeaveRequests('leave-requests', token)
+                .then((data) => {
+                    setRequests(data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        } else {
+            // console.log('No token found!');
+        }
+    }
+
+    const onLeavePilots = useMemo(() => {
+        const acceptedRequests = requests.filter(request => request.status?.toLowerCase() === 'approved');
+        const today = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        const todayLeave = acceptedRequests.filter(request => {
+            const startTime = moment(request.start_time);
+            const endTime = moment(request.end_time);
+            return moment(today).isBetween(startTime, endTime, 'day', '[]');
+        });
+
+        const onleavePilotRequests = todayLeave.map(request => {
+            const pilot = pilotListProp.find(pilot => pilot.pilot_id === request.requestor_id);
+            return pilot ? { ...pilot, status: 'time off' } : null;
+        });
+
+        const uniquePilotIds = Array.from(new Set(onleavePilotRequests.map(pilot => pilot?.pilot_id)));
+        return uniquePilotIds;
+
+    }, [requests]);
+
+    const availablePilots = useMemo(() => {
+        const allPilotIds = pilotListProp.map(pilot => pilot.pilot_id);
+        const unavailablePilotIds = [...inFlightPilots, ...onLeavePilots];
+        const availablePilotIds = allPilotIds.filter(pilotId => !unavailablePilotIds.includes(pilotId));
+        return availablePilotIds.map(pilotId => {
+            const pilot = pilotListProp.find(pilot => pilot.pilot_id === pilotId);
+            return pilot ? { ...pilot, status: 'available' } : null;
+        });
+    }, [pilotListProp, inFlightPilots, onLeavePilots]);
 
     const handleSelectAvailability = (event: SelectChangeEvent) => {
         setStatus(event.target.value as string);
@@ -123,6 +195,12 @@ const FlightCrewAvailabilityTable = () => {
     const handleRefresh = () => {
         setStatus('');
         setRole('');
+        getPilots();
+        setPage(0); // Reset pagination to the first page
+    };
+
+    const handleRefreshAvailabilityStatus = () => {
+        return true;
     };
 
     // State for pagination
@@ -139,13 +217,38 @@ const FlightCrewAvailabilityTable = () => {
         setPage(0);
     };
 
+    const pilotListWithStatus = useMemo(() => {
+        const pilotStatusMap = new Map<number, string>();
+
+        inFlightPilots.forEach(pilotId => {
+            if (pilotId !== undefined) {
+                pilotStatusMap.set(pilotId, 'In Flight');
+            }
+        });
+
+        onLeavePilots.forEach(pilotId => {
+            if (pilotId !== undefined) {
+                pilotStatusMap.set(pilotId, 'On Leave');
+            }
+        });
+
+        availablePilots.forEach(pilot => {
+            if (pilot?.pilot_id) {
+                pilotStatusMap.set(pilot.pilot_id, 'Available');
+            }
+        });
+
+        return Array.from(pilotStatusMap.entries()).map(([pilotId, status]) => ({ pilotId, status }));
+    }, [pilotList, pilotListProp, inFlightPilots, onLeavePilots, availablePilots]);
+
     // Paginated data
     const paginatedData = pilotList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
+    // const paginatedData = pilotListWithStatus.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     const isFetchingPilotList = isLoading('pilot-area');
 
     useEffect(() => {
         getPilots();
+        getAllRequests();
     }, []);
 
     return (
@@ -194,12 +297,10 @@ const FlightCrewAvailabilityTable = () => {
                     </FormControl>
                 </div>
                 
-
                 <div className={flightcrewStyles.buttonDiv}>
+                    {/* <Button variant='contained' disabled={false} onClick={handleRefreshAvailabilityStatus}>{'Refresh Availability Status'}</Button> */}
                     <Button variant='contained' disabled={false} onClick={handleApplySelections}>{'Apply'}</Button>
-                    <IconButton onClick={handleRefresh} sx={{ ml: 'auto' }}>
-                        <RefreshIcon />
-                    </IconButton>
+                    <Button variant='outlined' color='primary' disabled={false} onClick={handleRefresh}>{'Reset'}</Button>
                 </div>
             </Toolbar>
 
@@ -211,7 +312,6 @@ const FlightCrewAvailabilityTable = () => {
                             <TableCell>Pilot ID</TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>Role</TableCell>
-                            {/* <TableCell>Hours Flown</TableCell> */}
                             <TableCell>Availability</TableCell>
                         </TableRow>
                     </TableHead>
@@ -251,15 +351,19 @@ const FlightCrewAvailabilityTable = () => {
                                                                 ) : (
                                                                     <>
                                                                         {_.startCase(_.toLower(pilot.role))}
+                                                                        {
+                                                                            <>
+                                                                                <IconButton onClick={() => handleEditPilotUpdate(pilot, 'role')}>
+                                                                                    <EditOutlinedIcon fontSize='small' color='primary'/>
+                                                                                </IconButton>
+                                                                            </>
+                                                                        }
                                                                     </>
                                                                 )
                                                             }
                                                         </TableCell>
-                                                        {/* <TableCell>
-                                                            {pilot.hours_flown ? `${pilot.hours_flown} hrs` : '-'}
-                                                        </TableCell> */}
                                                         <TableCell>
-                                                            {pilot.status?.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                                            {pilotListWithStatus.find(p => p.pilotId === pilot.pilot_id)?.status ?? 'N/A'}
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
@@ -282,6 +386,7 @@ const FlightCrewAvailabilityTable = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </TableContainer>
+
             {/* Edit Modal */}
             <Modal open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className={flightcrewStyles.modal}>
                 <Box

@@ -106,16 +106,55 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
 
     const [requests, setRequests] = useState<Array<PilotRequests>>([]);
 
-    const pilotStats = useMemo(() => {
-        return pilotListProp.filter(pilot => pilot?.status).reduce((acc, pilot) => {
-            const status = pilot.status.toLowerCase();
-            if (!acc[status]) {
-                acc[status] = 0;
-            }
-            acc[status]++;
-            return acc;
-        }, {} as Record<string, number>);
-    }, [pilotListProp]);
+    const inFlightPilots = useMemo(() => {
+        const today = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        const inFlightSchedules = scheduleDataProp.filter(flight => {
+            const startTime = moment(flight.departureTime);
+            const endTime = moment(flight.arrivalTime);
+            return moment(today).isBetween(startTime, endTime, 'hour', '[]');
+        });
+
+        const uniquePilotIds = Array.from(
+            new Set(
+                inFlightSchedules.flatMap(schedule => [
+                    schedule.pilot?.pilot_id,
+                    schedule.coPilot?.pilot_id
+                ])
+            )
+        );
+        return uniquePilotIds;
+    }, [scheduleDataProp]);
+
+    const onLeavePilots = useMemo(() => {
+        const acceptedRequests = requests.filter(request => request.status?.toLowerCase() === 'approved');
+        const today = moment().format('YYYY-MM-DD HH:mm:ss');
+
+        const todayLeave = acceptedRequests.filter(request => {
+            const startTime = moment(request.start_time);
+            const endTime = moment(request.end_time);
+            return moment(today).isBetween(startTime, endTime, 'day', '[]');
+        });
+
+        const onleavePilotRequests = todayLeave.map(request => {
+            const pilot = pilotListProp.find(pilot => pilot.pilot_id === request.requestor_id);
+            return pilot ? { ...pilot, status: 'time off' } : null;
+        });
+
+        const uniquePilotIds = Array.from(new Set(onleavePilotRequests.map(pilot => pilot?.pilot_id)));
+        return uniquePilotIds;
+
+    }, [requests]);
+
+    const availablePilots = useMemo(() => {
+        const allPilotIds = pilotListProp.map(pilot => pilot.pilot_id);
+        const unavailablePilotIds = [...inFlightPilots, ...onLeavePilots];
+        const availablePilotIds = allPilotIds.filter(pilotId => !unavailablePilotIds.includes(pilotId));
+        return availablePilotIds.map(pilotId => {
+            const pilot = pilotListProp.find(pilot => pilot.pilot_id === pilotId);
+            return pilot ? { ...pilot, status: 'available' } : null;
+        });
+    }, [pilotListProp, inFlightPilots, onLeavePilots]);
 
     const pendingRequests = useMemo(() => {
         return requests.filter(request => request.status?.toLowerCase() === 'pending');
@@ -126,14 +165,14 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             getAllLeaveRequests('leave-requests', token)
                 .then((data) => {
                     // successToast('Leave requests fetched successfully!');
-                    console.log('Fetched leave requests:', data);
+                    // console.log('Fetched leave requests:', data);
                     setRequests(data);
                 })
                 .catch((error) => {
                     console.log(error);
                 });
         } else {
-            console.log('No token found!');
+            // console.log('No token found!');
         }
     }
 
@@ -193,25 +232,43 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
                 <FlightDistributionChart/>
 
                 <div className={dashboardStyles.pilotAvailabilityDiv}>
-                    <h2 className={dashboardStyles.sectionTitle}>Pilot Availability</h2>
-                    <div className={dashboardStyles.pilotStatsDiv}>
-                        {Object.entries(pilotStats).map(([status, count]) => (
-                            <div key={status} className={dashboardStyles.pilotStat}>
+                    <div className={dashboardStyles.contentDiv}>
+                        <div className={dashboardStyles.titleDiv}>
+                            <h2 className={dashboardStyles.sectionTitle}>Pilot Availability ({moment().format('MMMM Do, YYYY')})</h2>
+                        </div>
+                        
+                        <div className={dashboardStyles.pilotStatsDiv}>
+                            <div className={dashboardStyles.pilotStat}>
                                 <div className={dashboardStyles.labelDiv}>
                                     <Badge 
                                         badgeContent={" "} 
-                                        color={
-                                            status === 'available' ? 'success' :
-                                            status === 'time off' ? 'error' :
-                                            status === 'in flight' ? 'secondary' :
-                                            status === 'stand by' ? 'info' : 'default'
-                                        }
+                                        color={'success'}
                                     />
-                                    <p>{status.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
+                                    <p>{'Available'}</p>
                                 </div>
-                                <span className={dashboardStyles.statCount}>{count}</span>
+                                <span className={dashboardStyles.statCount}>{availablePilots?.length ?? 0}</span>
                             </div>
-                        ))}
+                            <div className={dashboardStyles.pilotStat}>
+                                <div className={dashboardStyles.labelDiv}>
+                                    <Badge 
+                                        badgeContent={" "} 
+                                        color={'secondary'}
+                                    />
+                                    <p>{'In Flight'}</p>
+                                </div>
+                                <span className={dashboardStyles.statCount}>{inFlightPilots?.length ?? 0}</span>
+                            </div>
+                            <div className={dashboardStyles.pilotStat}>
+                                <div className={dashboardStyles.labelDiv}>
+                                    <Badge 
+                                        badgeContent={" "} 
+                                        color={'error'}
+                                    />
+                                    <p>{'On Leave'}</p>
+                                </div>
+                                <span className={dashboardStyles.statCount}>{onLeavePilots?.length ?? 0}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

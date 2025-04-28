@@ -19,7 +19,7 @@ import { useToast } from '../hooks/useToast';
 
 const Admin = () => {
 
-	const { token, userId, role, pilotId } = useAuth();
+	const { token } = useAuth();
 	const { getFlightDetails, getAllPilots } = useBackendActions();
 	 const { errorToast } = useToast();
 
@@ -143,7 +143,12 @@ const Admin = () => {
 			case 'schedule': 
 				return <Schedule />;
 			case 'crew': 
-				return <CrewManagement />;
+				return (
+					<CrewManagement 
+						scheduleDataProp={scheduleData} 
+						pilotListProp={pilotList}
+					/>
+				);
 			case 'history': 
 				return <FlightHistory />;
 			case 'notifications':

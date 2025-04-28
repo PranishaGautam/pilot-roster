@@ -4,3 +4,8 @@
     display: flex;
     justify-content: space-between;
 }
+
+.buttonDiv {
+    display: flex;
+    gap: 0.5rem;
+}

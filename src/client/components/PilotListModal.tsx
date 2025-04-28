@@ -83,6 +83,11 @@ const PilotListModal = ({ isOpen, setIsOpen, schedule, assignType, setAssignType
             });
     };
 
+    const handleCloseModal = () => {
+        setIsOpen(false);
+        setSelectedPilot(null);
+    };
+
     // Handle assign action
     const handleAssign = () => {
 
@@ -141,7 +146,7 @@ const PilotListModal = ({ isOpen, setIsOpen, schedule, assignType, setAssignType
     const isFetchingPilotList = isLoading('pilot-area');
 
     return (
-        <Modal open={isOpen} onClose={() => setIsOpen(false)}>
+        <Modal open={isOpen} onClose={handleCloseModal}>
             <Box
                 sx={{
                     position: 'absolute',
@@ -149,95 +154,100 @@ const PilotListModal = ({ isOpen, setIsOpen, schedule, assignType, setAssignType
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
                     width: '70vw',
+                    height: '80vh',
                     bgcolor: 'background.paper',
                     boxShadow: 24,
                     p: 4,
                     borderRadius: 2,
                 }}
             >
-                <div className={pilotModalListStyle.InstructionsDiv}>
-                    <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-                        {'Select a Pilot'}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 2 }}>
-                        {'Please select a pilot from the list below to assign to the flight.'}
-                    </Typography>
-                </div>
-                
-                <div className={pilotModalListStyle.pilotListDiv}>
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Pilot Id</TableCell>
-                                    <TableCell align="left">Name</TableCell>
-                                    <TableCell align="left">Role</TableCell>
-                                    <TableCell align="left">Status</TableCell>
-                                    <TableCell align="left">Action</TableCell>
-                                </TableRow>
-                            </TableHead>
+                <div style={{ width: '100%', height: '100%'}}>
+                    <div className={pilotModalListStyle.InstructionsDiv}>
+                        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                            {'Select a Pilot'}
+                        </Typography>
+                        <Typography variant="body1" sx={{ mb: 2 }}>
+                            {'Please select a pilot from the list below to assign to the flight.'}
+                        </Typography>
+                    </div>
 
-                            <TableBody>
-                                {
-                                    isFetchingPilotList ? (
+                    <div style={{ maxHeight: '400px', overflowY: 'auto', width: '100%' }}>
+                        <div className={pilotModalListStyle.pilotListDiv}>
+                            <TableContainer component={Paper}>
+                                <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                                    <TableHead>
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">
-                                                <CircularProgress color={'primary'} />
-                                            </TableCell>
+                                            <TableCell>Pilot Id</TableCell>
+                                            <TableCell align="left">Name</TableCell>
+                                            <TableCell align="left">Role</TableCell>
+                                            <TableCell align="left">Status</TableCell>
+                                            <TableCell align="left">Action</TableCell>
                                         </TableRow>
-                                    ) : (
-                                        pilotList.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={5} align="center">
-                                                    {'No pilots available.'}
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            <>
-                                                {
-                                                    pilotList.map((pilot) => (
-                                                        <TableRow key={pilot.pilot_id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                                            <TableCell component="th" scope="row">
-                                                                {pilot.pilot_id}
-                                                            </TableCell>
-                                                            <TableCell align="left">{`${pilot.first_name} ${pilot.last_name}`}</TableCell>
-                                                            <TableCell align="left">{pilot.role}</TableCell>
-                                                            <TableCell align="left">{pilot.status}</TableCell>
-                                                            <TableCell align="left">
-                                                                <Button
-                                                                    variant={'text'}
-                                                                    color={'primary'}
-                                                                    onClick={() => setSelectedPilot(pilot)}
-                                                                    disabled={selectedPilot?.pilot_id === pilot.pilot_id}
-                                                                >
-                                                                    {selectedPilot?.pilot_id === pilot.pilot_id ? 'Selected' : 'Select'}
-                                                                </Button>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))
-                                                }
-                                            </>
-                                        )
-                                    )
-                                }
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    </TableHead>
+
+                                    <TableBody>
+                                        {
+                                            isFetchingPilotList ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} align="center">
+                                                        <CircularProgress color={'primary'} />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                pilotList.length === 0 ? (
+                                                    <TableRow>
+                                                        <TableCell colSpan={5} align="center">
+                                                            {'No pilots available.'}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ) : (
+                                                    <>
+                                                        {
+                                                            pilotList.map((pilot) => (
+                                                                <TableRow key={pilot.pilot_id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                                                    <TableCell component="th" scope="row">
+                                                                        {pilot.pilot_id}
+                                                                    </TableCell>
+                                                                    <TableCell align="left">{`${pilot.first_name} ${pilot.last_name}`}</TableCell>
+                                                                    <TableCell align="left">{pilot.role}</TableCell>
+                                                                    <TableCell align="left">{pilot.status}</TableCell>
+                                                                    <TableCell align="left">
+                                                                        <Button
+                                                                            variant={'text'}
+                                                                            color={'primary'}
+                                                                            onClick={() => setSelectedPilot(pilot)}
+                                                                            disabled={selectedPilot?.pilot_id === pilot.pilot_id}
+                                                                        >
+                                                                            {selectedPilot?.pilot_id === pilot.pilot_id ? 'Selected' : 'Select'}
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        }
+                                                    </>
+                                                )
+                                            )
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                    </div>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                        <Button onClick={handleCloseModal} sx={{ mr: 2 }}>
+                            {'Close'}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleAssign}
+                            disabled={!selectedPilot}
+                        >
+                            {'Assign'}
+                        </Button>
+                    </Box>
                 </div>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                    <Button onClick={() => setIsOpen(false)} sx={{ mr: 2 }}>
-                        {'Cancel'}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleAssign}
-                        disabled={!selectedPilot}
-                    >
-                        {'Assign'}
-                    </Button>
-                </Box>
             </Box>
         </Modal>
     );

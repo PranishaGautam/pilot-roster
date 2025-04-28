@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
 	Box,
@@ -110,6 +110,8 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 const SchedulesTable = () => {
 
 	const { token, role, pilotId } = useAuth();
+
+	const today = moment().format('YYYY-MM-DD HH:mm:ss');
 
 	const { getFlightDetails, getFlightDetailsByPilotId } = useBackendActions();
 	const { errorToast } = useToast();
@@ -225,6 +227,7 @@ const SchedulesTable = () => {
 		setIsAssigned('');
 		setStartDate(null);
 		setEndDate(null);
+		getFlightDetailsData();
 		setPage(0);
 	}
 
@@ -358,9 +361,7 @@ const SchedulesTable = () => {
 
 							<div className={schedulesTableStyles.buttonDiv}>
 								<Button variant='contained' disabled={false} onClick={handleScheduleSelections}>{'Apply'}</Button>
-								<IconButton onClick={handleRefreshSelections} sx={{ ml: 'auto' }}>
-									<RefreshIcon />
-								</IconButton>
+								<Button variant='outlined' color='primary' disabled={false} onClick={handleRefreshSelections}>{'Reset'}</Button>
 							</div>
 						</Toolbar>
 					)
@@ -420,7 +421,7 @@ const SchedulesTable = () => {
 																<>
 																	{`${row.pilot.first_name} ${row.pilot.last_name}`}
 																	{
-																		(role === 'admin') && (
+																		((role === 'admin') && (moment(row.departureTime).isSameOrAfter(moment().endOf('day')))) && (
 																			<IconButton onClick={() => handlePilotAssignment(row, 'pilot')}>
 																				<EditOutlinedIcon fontSize='small' color='primary'/>
 																			</IconButton>
@@ -431,7 +432,7 @@ const SchedulesTable = () => {
 															: (
 																<>
 																	{
-																		(role === 'admin') ? (
+																		((role === 'admin') && (moment(row.departureTime).isSameOrAfter(moment().endOf('day')))) ? (
 																			<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'pilot')}>{'Assign'}</Button>
 																		) : (
 																			'TBD'
@@ -448,7 +449,7 @@ const SchedulesTable = () => {
 																<>
 																	{`${row.coPilot.first_name} ${row.coPilot.last_name}`}
 																	{
-																		(role === 'admin') && (
+																		((role === 'admin') && moment(row.departureTime).isSameOrAfter(moment().startOf('day'))) && (
 																			<IconButton onClick={() => handlePilotAssignment(row, 'co_pilot')}>
 																				<EditOutlinedIcon fontSize='small' color='primary'/>
 																			</IconButton>
@@ -459,7 +460,7 @@ const SchedulesTable = () => {
 															: (
 																<>
 																	{
-																		(role === 'admin') ? (
+																		((role === 'admin') && (moment(row.departureTime).isSameOrAfter(moment().endOf('day')))) ? (
 																			<Button variant='outlined' disabled={false} onClick={() => handlePilotAssignment(row, 'co_pilot')}>{'Assign'}</Button>
 																		) : (
 																			'TBD'

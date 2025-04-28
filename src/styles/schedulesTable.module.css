@@ -16,3 +16,8 @@
     display: flex;
     gap: 1rem;
 }
+
+.buttonDiv {
+    display: flex;
+    gap: 0.5rem;
+}
