@@ -145,8 +145,6 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     }, [pilotListProp, inFlightPilots, onLeavePilots]);
 
     const activePilots = useMemo(() => {
-        const activePilots =  pilotListProp.filter((pilot) => pilot.status?.toLowerCase() !== 'time off').length;
-
         return (
             <DisplayCard
                 cardTitle={'Active Pilots'}
