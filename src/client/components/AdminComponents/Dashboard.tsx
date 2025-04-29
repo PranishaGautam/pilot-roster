@@ -108,7 +108,7 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
                 inFlightSchedules.flatMap(schedule => [
                     schedule.pilot?.pilot_id,
                     schedule.coPilot?.pilot_id
-                ])
+                ]).filter(pilotId => pilotId !== null && pilotId !== undefined)
             )
         );
         return uniquePilotIds;
@@ -135,20 +135,21 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
     }, [requests]);
 
     const availablePilots = useMemo(() => {
-        const allPilotIds = pilotListProp.map(pilot => pilot.pilot_id);
-        const unavailablePilotIds = [...inFlightPilots, ...onLeavePilots];
-        const availablePilotIds = allPilotIds.filter(pilotId => !unavailablePilotIds.includes(pilotId));
-        return availablePilotIds.map(pilotId => {
-            const pilot = pilotListProp.find(pilot => pilot.pilot_id === pilotId);
-            return pilot ? { ...pilot, status: 'available' } : null;
-        });
+        const totalPilots = pilotListProp.length;
+        const unavailablePilotsCount = inFlightPilots.length + onLeavePilots.length;
+        const availablePilotsCount = totalPilots - unavailablePilotsCount;
+
+        return pilotListProp
+            .filter(pilot => !inFlightPilots.includes(pilot.pilot_id) && !onLeavePilots.includes(pilot.pilot_id))
+            .map(pilot => ({ ...pilot, status: 'available' }));
     }, [pilotListProp, inFlightPilots, onLeavePilots]);
 
     const activePilots = useMemo(() => {
+        const totalActivePilots = availablePilots?.length ?? 0 + inFlightPilots.length + onLeavePilots.length;
         return (
             <DisplayCard
-                cardTitle={'Active Pilots'}
-                cardValue={availablePilots?.length ?? 0}
+                cardTitle={'Available Pilots'}
+                cardValue={totalActivePilots}
                 cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
             />
         )
