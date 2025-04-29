@@ -45,18 +45,6 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
 
     const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
 
-    const activePilots = useMemo(() => {
-        const activePilots =  pilotListProp.filter((pilot) => pilot.status?.toLowerCase() !== 'time off').length;
-
-        return (
-            <DisplayCard
-                cardTitle={'Active Pilots'}
-                cardValue={activePilots}
-                cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
-            />
-        )
-    }, [pilotListProp]);
-
     const scheduledFlights = useMemo(() => {
         const scheduledFlights = scheduleDataProp.filter((flight) => flight.status?.toLowerCase() === 'scheduled').length;
         return (
@@ -155,6 +143,18 @@ const Dashboard = ({ scheduleDataProp, pilotListProp, pilotPerformanceData }: Pr
             return pilot ? { ...pilot, status: 'available' } : null;
         });
     }, [pilotListProp, inFlightPilots, onLeavePilots]);
+
+    const activePilots = useMemo(() => {
+        const activePilots =  pilotListProp.filter((pilot) => pilot.status?.toLowerCase() !== 'time off').length;
+
+        return (
+            <DisplayCard
+                cardTitle={'Active Pilots'}
+                cardValue={availablePilots?.length ?? 0}
+                cardDate={moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')}
+            />
+        )
+    }, [pilotListProp, availablePilots]);
 
     const pendingRequests = useMemo(() => {
         return requests.filter(request => request.status?.toLowerCase() === 'pending');
