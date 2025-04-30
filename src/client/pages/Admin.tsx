@@ -24,7 +24,6 @@ const Admin = () => {
 	 const { errorToast } = useToast();
 
 	const [scheduleData, setScheduleData] = useState<Array<ScheduleTableData>>([]);
-
 	const getFlightSchedules = () => {
 		if (token) {
 			// Call the backend API with the selected parameters
@@ -62,7 +61,6 @@ const Admin = () => {
 	}
 
 	const [pilotList, setPilotList] = useState<Array<PilotResponse>>([]);
-
 	const getPilots = () => {
         if (token) {
             getAllPilots('pilot-area', token)
@@ -116,7 +114,6 @@ const Admin = () => {
 		const sortedPerformanceData = Object.fromEntries(
 			Object.entries(performanceData).sort(([, a], [, b]) => b - a)
 		);
-
 		return Object.entries(sortedPerformanceData).map(([pilotId, flyingHours]) => ({
 			pilotId,
 			flyingHours,

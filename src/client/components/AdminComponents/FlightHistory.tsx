@@ -54,6 +54,7 @@ const FlightHistory = () => {
 
         const params: FlightDetailQueryParams = {
             end_date: `${new Date().toISOString().split('.')[0]}Z`,
+            status: 'COMPLETED'
         };
 
         if (token) {
